@@ -1,23 +1,46 @@
 import { app, shell, BrowserWindow } from 'electron'
-import { join } from 'path'
+import { join } from 'node:path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import log from 'electron-log/main'
+import { AssistantsLoad } from './assistantsload'
+
 import icon from '../../resources/icon.png?asset'
+// import assistants from '../../resources/assistants/**?asset&asarUnpack'
+
+log.initialize({ preload: true })
+log.info('Log from the main process')
+// 输出app版本
+log.info(`version:${app.getVersion()}`)
+
+// windows 单例运行
+if (!app.requestSingleInstanceLock()) {
+  app.quit()
+  process.exit(0)
+}
 
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
-    }
+    },
+    minWidth: 600,
+    minHeight: 500
   })
 
+  mainWindow.setBackgroundColor('#171A1C')
+
   mainWindow.on('ready-to-show', () => {
+    // 读取Assistants
+    const resourcesPath = is.dev
+      ? './resources'
+      : join(process.resourcesPath, 'app.asar.unpacked', 'resources')
+    const assistantlist = AssistantsLoad(resourcesPath)
+    mainWindow.webContents.send('assistant-list', assistantlist)
     mainWindow.show()
   })
 
@@ -40,7 +63,7 @@ function createWindow(): void {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('com.superagent')
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.

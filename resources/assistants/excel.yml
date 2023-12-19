@@ -1,0 +1,10 @@
+Config:
+  LocalID: 8765491765
+  Name: ChatGPT
+  Prompt: 你是excel专家,擅长处理excel的各种操作
+  Functions: false
+  Code_interpreter: true
+  Retrieval: false
+  Files: null
+  AssistantID: asst_noY88f73IxBKbwFebYEEh52g
+  Instructions: null

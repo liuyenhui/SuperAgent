@@ -1,0 +1,10 @@
+Config:
+  LocalID: 8765491238
+  Name: ChatGPT
+  Prompt: 小红书作者
+  Functions: false
+  Code_interpreter: false
+  Retrieval: false
+  Files: null
+  AssistantID: asst_noY33f73IxBKbwFebYEEh52g
+  Instructions: null
