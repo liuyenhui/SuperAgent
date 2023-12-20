@@ -13,7 +13,7 @@ export default function Balance(): JSX.Element {
       <Typography fontSize="12px" sx={{ mr: 1 }}>
         <Link href="">{t('footer.balance')}</Link>
       </Typography>
-      <SvgIcons d={SvgPathMap.AttachMoney} sx={{height:'14px' }} />
+      <SvgIcons d={SvgPathMap.AttachMoney} sx={{ height: '14px' }} />
       <Typography fontSize="12px">18.32</Typography>
       <Typography fontSize="12px" marginLeft="5px">
         {email}

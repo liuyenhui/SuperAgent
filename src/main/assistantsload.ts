@@ -1,10 +1,7 @@
-import path from 'path-browserify'
-import fs from 'fs'
+import path from 'node:path'
+import fs from 'node:fs'
 import yaml from 'js-yaml'
-// import { System } from '@/components/public/system';
 import log from 'electron-log/main'
-
-// const InsertAssistantBase = AssistantsStore((state)=>state.InsertAssistantBase)
 
 export function AssistantsLoad(respath: string): Array<unknown> {
   const assistantlist: Array<unknown> = []
@@ -20,15 +17,6 @@ export function AssistantsLoad(respath: string): Array<unknown> {
         assistant.Config['FileName'] = filename
         assistantlist.push(assistant.Config)
       }
-      // InsertAssistantBase(assistant)
-      // console.log(assistant)
-      // console.log(assistant.Config.Prompt)
-      // // 写入yml文件
-      // assistant.Config.Prompt = "小红书作者"
-      // // 序列化对象 info
-      // let yamlStr = yaml.dump(assistant);
-      // console.log(yamlStr)
-      // fs.writeFileSync(filename,yamlStr,'utf-8')
     })
   } catch (error) {
     log.error(`load file:${loadpath}`, error)

@@ -1,33 +1,20 @@
-// import './App.css'
-// import { ipcRenderer } from 'electron/renderer'
 import { Box, CssVarsProvider } from '@mui/joy'
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-
+import log from 'electron-log/renderer'
 // 进程通信,proload 见:electron/preload/index.ts
 // console.log(window.api())
 import Layout from './components/layout/layout'
-
-// import { SystemInfoStore } from '@renderer/components/public/systemstore'
-// import { AssistantsStore } from '@renderer/components/public/assistantstore'
+import { useEffect } from 'react'
+import { AssistantsStore } from '@renderer/components/public/assistantstore'
 
 function App(): JSX.Element {
-  console.log('app load.....')
-  // const update = SystemInfoStore((state) => state.update)
-  // const insertbase = AssistantsStore((state) => state.InsertAssistantBase)
-  // // 主进程推送版本
-
-  // ipcRenderer.on('main-msg-version', (_event, message) => {
-  //   console.log(`recv main-msg-version ${message.version}`)
-  //   update('AppVersion', message.version)
-  // })
-  // 获得助手信息
-  // ipcRenderer.once('assistant-list', (_event, assistantlist) => {
-  // const list: Array<unknown> = assistantlist
-  // console.log(`recv assistant-list length:${list.length}`)
-  // list.forEach((assistant) => {
-  //   insertbase(assistant as System.AssistantBase)
-  // })
-  // })
+  const InsertAssistantBase = AssistantsStore((state) => state.InsertAssistantBase)
+  // 执行一次,首次加载
+  useEffect(() => {
+    // 发送消息获取Assistants信息
+    const assistants = window.electron.ipcRenderer.sendSync('get_assistants')
+    log.info(assistants)
+    InsertAssistantBase(assistants)
+  }, [])
 
   return (
     <CssVarsProvider defaultMode="dark">

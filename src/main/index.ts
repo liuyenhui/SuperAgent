@@ -2,10 +2,9 @@ import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'node:path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import log from 'electron-log/main'
-import { AssistantsLoad } from './assistantsload'
+import { MainIPC } from './ipc/assistantipc'
 
 import icon from '../../resources/icon.png?asset'
-// import assistants from '../../resources/assistants/**?asset&asarUnpack'
 
 log.initialize({ preload: true })
 log.info('Log from the main process')
@@ -26,21 +25,23 @@ function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      // 生成环境禁用 devTools
+      devTools: is.dev
     },
     minWidth: 600,
     minHeight: 500
   })
+  // 读取 Assistants 需要路径 app用于接收消息
+  MainIPC.resourcesPath = is.dev
+    ? './resources'
+    : join(process.resourcesPath, 'app.asar.unpacked', 'resources')
+  MainIPC.app = app
+  MainIPC.mainWindow = mainWindow
 
   mainWindow.setBackgroundColor('#171A1C')
 
   mainWindow.on('ready-to-show', () => {
-    // 读取Assistants
-    const resourcesPath = is.dev
-      ? './resources'
-      : join(process.resourcesPath, 'app.asar.unpacked', 'resources')
-    const assistantlist = AssistantsLoad(resourcesPath)
-    mainWindow.webContents.send('assistant-list', assistantlist)
     mainWindow.show()
   })
 
@@ -56,6 +57,8 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+  // 传递给IPC
+
 }
 
 // This method will be called when Electron has finished
