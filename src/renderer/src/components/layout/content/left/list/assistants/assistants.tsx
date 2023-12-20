@@ -1,15 +1,18 @@
 import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@mui/joy'
 // https://fonts.google.com/icons
-import PeopleOutline from '@mui/icons-material/PeopleOutline'
+// import PeopleOutline from '@mui/icons-material/PeopleOutline'
+
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AssistantCard } from './assistantcard/assistantcard'
+import { SvgIcons, SvgPathMap } from '@renderer/components/public/SvgIcons'
 
 // import {AssistantCard } from "@/components/layout/content/left/list/assistants/assistantcard/assistantcard"
 
 export default function AssistantItem(): JSX.Element {
   const { t } = useTranslation()
   const [index, setIndex] = useState<number | null>(0)
+
   return (
     <Accordion
       expanded={index === 0}
@@ -19,7 +22,7 @@ export default function AssistantItem(): JSX.Element {
       sx={{ height: 'auto' }}
     >
       <AccordionSummary sx={{ height: 'auto' }}>
-        <PeopleOutline />
+        <SvgIcons d={SvgPathMap.Pople} />
         <Typography fontSize="14px">{t('list.assisants')}</Typography>
       </AccordionSummary>
       <AccordionDetails sx={{ height: 'auto' }}>

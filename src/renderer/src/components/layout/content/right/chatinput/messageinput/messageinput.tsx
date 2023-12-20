@@ -1,4 +1,4 @@
-import { Send } from '@mui/icons-material'
+import { SvgIcons, SvgPathMap } from '@renderer/components/public/SvgIcons'
 import { Box, Chip, Stack, Textarea, Typography } from '@mui/joy'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -63,6 +63,7 @@ export default function MessageInput(): JSX.Element {
             size="sm"
             sx={{
               height: 'auto',
+              mt: '5px',
               mb: '5px',
               ml: 'auto'
             }}
@@ -73,7 +74,7 @@ export default function MessageInput(): JSX.Element {
             }}
           >
             <Stack direction="row" justifyContent="center" alignItems="center" spacing={0.5}>
-              <Send sx={{ mr: '1px' }} />
+              <SvgIcons d={SvgPathMap.Send} sx={{ mr: '1px' }} />
               <Typography level="body-sm" variant="plain" color="primary">
                 {t('chat.sendmessage')}
               </Typography>
