@@ -5,12 +5,11 @@ import { Box, CssVarsProvider } from '@mui/joy'
 // 进程通信,proload 见:electron/preload/index.ts
 // console.log(window.api())
 import Layout from './components/layout/layout'
-import { usei18n } from './i18n/i18n'
+
 // import { SystemInfoStore } from '@renderer/components/public/systemstore'
 // import { AssistantsStore } from '@renderer/components/public/assistantstore'
 
 function App(): JSX.Element {
-  usei18n()
   console.log('app load.....')
   // const update = SystemInfoStore((state) => state.update)
   // const insertbase = AssistantsStore((state) => state.InsertAssistantBase)
