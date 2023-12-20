@@ -28,8 +28,8 @@ export default defineConfig({
     },
     plugins: [
       commonjs(),
-      // react(),
       react({
+        //   jsxRuntime: 'classic'
         jsxRuntime: 'automatic',
         jsxImportSource: '@emotion/react',
         babel: {

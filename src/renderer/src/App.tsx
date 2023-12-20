@@ -1,6 +1,7 @@
 // import './App.css'
 // import { ipcRenderer } from 'electron/renderer'
 import { Box, CssVarsProvider } from '@mui/joy'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 
 // 进程通信,proload 见:electron/preload/index.ts
 // console.log(window.api())
