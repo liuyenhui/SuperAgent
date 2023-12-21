@@ -1,13 +1,13 @@
 Config:
   LocalID: 8765491238
-  Name: ChatGPT
-  NameCN: ChatGPT
-  Prompt: 小红书作者
-  Type: chat
+  Name: DELL·E 3
+  NameCN: 图像生成-3
+  Prompt:
+  Type: image
   Functions: false
   Code_interpreter: false
   Retrieval: false
   Files: null
-  AssistantID: asst_noY33f73IxBKbwFebYEEh52g
+  AssistantID: asst_noY33f79IxBKbwFebYEEh52g
   Instructions: null,
   ImageFile: chat.png

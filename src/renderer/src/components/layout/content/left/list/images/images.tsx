@@ -1,3 +1,4 @@
+// 图像生成 DLLE-3
 import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@mui/joy'
 // https://fonts.google.com/icons
 import { SvgIcons, SvgPathMap } from '@renderer/components/public/SvgIcons'

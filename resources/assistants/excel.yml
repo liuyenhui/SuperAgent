@@ -1,10 +1,13 @@
 Config:
   LocalID: 8765491765
-  Name: ChatGPT
+  Name: Excel Assistent
+  NameCN: Excel 助手
   Prompt: 你是excel专家,擅长处理excel的各种操作
+  Type: chat
   Functions: false
   Code_interpreter: true
   Retrieval: false
   Files: null
   AssistantID: asst_noY88f73IxBKbwFebYEEh52g
   Instructions: null
+  ImageFile: excel.png

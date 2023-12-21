@@ -1,9 +1,9 @@
 import { create } from 'zustand'
-
-interface AssisantsStore {
+import log from 'electron-log/renderer'
+interface AssistantsStoreType {
   Assistants: System.Assistants
-  // 从文件读取
-  InsertAssistantBase: (assistant: System.AssistantBase) => void
+  // 从文件读取, assistant.AssistantBase 代表一个文件的内容
+  InsertAssistant: (assistant: System.Assistant) => void
   // 读取消息
   LoadMessages: (AssistantID: string) => void
   // 读取附加问件
@@ -12,23 +12,21 @@ interface AssisantsStore {
   LoadFunction: (AssistantID: string) => void
 }
 
-const AssisantsData = new Map<string, System.Assistant>()
+// const AssisantsData = new Map<string, System.Assistant>()
 
-export const AssistantsStore = create<AssisantsStore>()(() => ({
-  Assistants: AssisantsData,
+export const AssistantsStore = create<AssistantsStoreType>()((set) => ({
+  Assistants: new Map<string, System.Assistant>(),
 
-  InsertAssistantBase: (assistant): void => {
-    const base: System.AssistantBase = assistant
-    const Assistant: System.Assistant = {
-      AssistantBase: base,
-      AssistantData: {
-        AssistantID: base.LocalID as string,
-        Messages: [],
-        CloudFiles: []
+  InsertAssistant: async (assistant: System.Assistant): Promise<void> => {
+    set((state) => {
+      state.Assistants.set(assistant.AssistantBase.LocalID as string, assistant)
+      log.info(
+        `inst assistant LoaclID:a=${assistant.AssistantBase.LocalID} Name:${assistant.AssistantBase.Name}`
+      )
+      return {
+        Assistants: state.Assistants
       }
-    }
-    AssisantsData.set(assistant.LocalID as string, Assistant)
-    console.log(assistant)
+    })
   },
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

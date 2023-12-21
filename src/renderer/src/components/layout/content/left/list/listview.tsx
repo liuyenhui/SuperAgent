@@ -7,7 +7,7 @@ import { LEFT_CONTENT_HEIGHT } from '@renderer/components/public/constants'
 export default function ListView(): JSX.Element {
   return (
     <Sheet variant="outlined" sx={{ width: 'auto', height: LEFT_CONTENT_HEIGHT, overflow: 'auto' }}>
-      <AccordionGroup>
+      <AccordionGroup sx={{ height: 'auto' }}>
         <AssistantItem></AssistantItem>
         <Images></Images>
         <Files></Files>

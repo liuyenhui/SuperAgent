@@ -27,11 +27,12 @@ function createWindow(): void {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
       // 生成环境禁用 devTools
-      devTools: is.dev
+      // devTools: is.dev
     },
     minWidth: 600,
     minHeight: 500
   })
+
   // 读取 Assistants 需要路径 app用于接收消息
   MainIPC.resourcesPath = is.dev
     ? './resources'
@@ -58,7 +59,6 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
   // 传递给IPC
-
 }
 
 // This method will be called when Electron has finished

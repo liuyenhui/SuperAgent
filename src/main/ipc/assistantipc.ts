@@ -13,9 +13,9 @@ type MainIPCType = {
   mainWindow: Electron.BrowserWindow
   resourcesPath: string
 }
-export const MainIPC: MainIPCType = {} as MainIPCType
-// 同步消息返回 assistantlist
+// !!!同步消息返回 assistantlist,未使用,同步消息会阻塞
 ipcMain.on('get_assistants', (event) => {
+  console.log(`event:${event}`)
   const assistantlist = AssistantsLoad(MainIPC.resourcesPath)
   // console.log(assistant)
   // console.log(assistant.Config.Prompt)
@@ -25,8 +25,15 @@ ipcMain.on('get_assistants', (event) => {
   // let yamlStr = yaml.dump(assistant);
   // console.log(yamlStr)
   // fs.writeFileSync(filename,yamlStr,'utf-8')
-  console.log(`event:${event}`)
   event.returnValue = assistantlist
 })
+
+// 渲染进程调用invoke
+ipcMain.handle('invoke_assistants', () => {
+  const assistantlist = AssistantsLoad(MainIPC.resourcesPath)
+  return assistantlist
+})
+
 // 主动消息
 // MainIPC.mainWindow.webContents.send('respone_assistants', callback)
+export const MainIPC: MainIPCType = {} as MainIPCType

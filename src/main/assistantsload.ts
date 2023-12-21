@@ -15,6 +15,7 @@ export function AssistantsLoad(respath: string): Array<unknown> {
         const filename = path.basename(filepath)
         // Config字段是助手基本信息
         assistant.Config['FileName'] = filename
+        assistant.Config['ImagePath'] = path.join(loadpath, assistant.Config['ImageFile'])
         assistantlist.push(assistant.Config)
       }
     })

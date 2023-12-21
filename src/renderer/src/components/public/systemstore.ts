@@ -1,5 +1,8 @@
 import { create } from 'zustand'
 
+/**
+ * System Store
+ */
 const InfoData: System.Info = {
   Email: 'liuyenhui@gamil.com',
   OpenAiToken: '',
@@ -16,6 +19,7 @@ interface SystemInfoStoreType {
 // 通过属性名,修改属性值
 export const SystemInfoStore = create<SystemInfoStoreType>()((set) => ({
   info: InfoData,
+  // 更新属性
   update: async (name, value): Promise<void> =>
     set(() => {
       // InfoData[name] = value 以下代码 [name]:value 替代
