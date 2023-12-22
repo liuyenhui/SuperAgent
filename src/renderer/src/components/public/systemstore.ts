@@ -37,16 +37,18 @@ export const SystemInfoStore = create<SystemInfoStoreType>()((set) => ({
 interface SystemEmailType {
   Emal: string
   AssistantID: string
+  LeftHidden: boolean
   updateEmail: (Email: string) => void
   updateAssistantID: (AssistantID: string) => void
-  // getAssistantID: () => string
+  updateLeftHidden: () => void
 }
 
 export const SystemStore = create<SystemEmailType>()((set) => ({
   Emal: 'liuyenhui@sina.com',
   AssistantID: '',
+  LeftHidden: false,
   updateEmail: async (Email: string): Promise<void> => set(() => ({ Emal: Email })),
   updateAssistantID: async (AssistantID: string): Promise<void> =>
     set(() => ({ AssistantID: AssistantID })),
-  // getAssistantID: async ()=>get(()=>({''}))
+  updateLeftHidden: async (): Promise<void> => set((state) => ({ LeftHidden: !state.LeftHidden }))
 }))
