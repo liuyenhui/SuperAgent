@@ -19,7 +19,8 @@ export default defineConfig({
     resolve: {
       alias: {
         '@renderer': path.resolve('src/renderer/src'),
-        '@components': path.resolve('src/components')
+        '@components': path.resolve('src/components'),
+        '@resources': path.resolve('resources')
       }
     },
     // 此处解决emotion?

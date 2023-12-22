@@ -1,5 +1,8 @@
 import { create } from 'zustand'
 import log from 'electron-log/renderer'
+/**
+ * Assistant Store
+ */
 interface AssistantsStoreType {
   Assistants: System.Assistants
   // 从文件读取, assistant.AssistantBase 代表一个文件的内容
@@ -19,9 +22,9 @@ export const AssistantsStore = create<AssistantsStoreType>()((set) => ({
 
   InsertAssistant: async (assistant: System.Assistant): Promise<void> => {
     set((state) => {
-      state.Assistants.set(assistant.AssistantBase.LocalID as string, assistant)
+      state.Assistants.set(assistant.AssistantBase.AssistantID as string, assistant)
       log.info(
-        `inst assistant LoaclID:a=${assistant.AssistantBase.LocalID} Name:${assistant.AssistantBase.Name}`
+        `inst assistant LoaclID:a=${assistant.AssistantBase.AssistantID} Name:${assistant.AssistantBase.Name}`
       )
       return {
         Assistants: state.Assistants

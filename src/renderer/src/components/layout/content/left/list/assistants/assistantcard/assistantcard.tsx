@@ -1,9 +1,12 @@
-import { Card, Typography, IconButton, Avatar } from '@mui/joy'
+import { Card, Typography, Avatar, Grid, Sheet, Link, ButtonGroup, Box } from '@mui/joy'
 import { SvgIcons, SvgPathMap } from '@renderer/components/public/SvgIcons'
 import { AssistantDialog } from '../assistantdialog'
-
 import { useState } from 'react'
-import log from 'electron-log/renderer'
+import log from 'electron-log'
+import { SystemStore } from '@renderer/components/public/systemstore'
+// 测试使用,发布删除
+// import imgfile from '@resources/assistants/chat.png'
+
 interface AssistantProp {
   children: JSX.Element | null
   assistant: System.Assistant
@@ -12,31 +15,88 @@ interface AssistantProp {
 export function AssistantCard(props: AssistantProp): JSX.Element {
   const [open, setOpen] = useState(false)
   const { assistant } = props
+  const updateAssistantID = SystemStore((state) => state.updateAssistantID)
   log.info(assistant.AssistantBase.ImagePath)
+
+  // 首次加载 使用getState 不回触发状态能行回调
+  // let AssistantID = SystemStore.getState().AssistantID
+  let AssistantID = SystemStore((state) => state.AssistantID)
+  if (AssistantID === '') {
+    AssistantID = props.assistant.AssistantBase.AssistantID as string
+    updateAssistantID(props.assistant.AssistantBase.AssistantID as string)
+  }
+  // AssistantID = SystemStore((state) => state.AssistantID)
+
+  const onClick = (event: unknown): void => {
+    // setColor('primary')
+    updateAssistantID(props.assistant.AssistantBase.AssistantID as string)
+    console.log(event)
+  }
+  log.info(`AssistantID:${AssistantID}`)
+  // 对话 Excel表 教师助手
   return (
-    <Card
-      variant="outlined"
-      orientation="horizontal"
-      sx={{
-        width: 140,
-        height: 40,
-        mt: '10px',
-        '&:hover': { boxShadow: 'md', borderColor: 'neutral.outlinedHoverBorder' }
-      }}
-    >
-      <Avatar
-        alt={assistant.AssistantBase.Name as string}
-        src={assistant.AssistantBase.ImagePath as string}
-      />
-      <Typography fontSize="h4">{props.assistant.AssistantBase.Name}</Typography>
-      <IconButton
-        size="sm"
-        onClick={() => {
-          setOpen(!open)
+    <Sheet>
+      <Card
+        variant="soft"
+        orientation="horizontal"
+        color={AssistantID === props.assistant.AssistantBase.AssistantID ? 'primary' : 'neutral'}
+        //color as ColorPaletteProp}
+        sx={{
+          // content: '',
+          // position: 'absolute',
+          width: 140,
+          height: 40,
+          mt: '10px',
+          '&:hover': { boxShadow: 'md', borderColor: 'neutral.outlinedHoverBorder' }
         }}
       >
-        <SvgIcons d={SvgPathMap.Info} />
-      </IconButton>
+        <ButtonGroup
+          onClick={onClick}
+          // onClick={(event) => {
+          // }}
+        >
+          <Grid
+            container
+            spacing={2}
+            direction="row"
+            justifyContent="center"
+            alignItems="center"
+            sx={{ flexGrow: 1 }}
+          >
+            <Grid
+              xs={3}
+              direction="row"
+              justifyContent="flex-start"
+              alignItems="center"
+              sx={{ p: 0 }}
+            >
+              <Avatar
+                alt={assistant.AssistantBase.Name as string}
+                src={assistant.AssistantBase.ImagePath as string}
+                // src={imgfile}
+              />
+            </Grid>
+
+            <Grid xs={7}>
+              <Typography level="title-lg" id="card-description">
+                <Link
+                  overlay
+                  underline="none"
+                  href="#interactive-card"
+                  sx={{ color: 'text.primary' }}
+                >
+                  {props.assistant.AssistantBase.Name}
+                </Link>
+              </Typography>
+            </Grid>
+            <Grid xs={2} sx={{}}>
+              <Box>
+                <SvgIcons d={SvgPathMap.Info} />
+              </Box>
+            </Grid>
+          </Grid>
+        </ButtonGroup>
+      </Card>
       <AssistantDialog
         assistent={assistant}
         open={open}
@@ -44,6 +104,6 @@ export function AssistantCard(props: AssistantProp): JSX.Element {
           setOpen(false)
         }}
       />
-    </Card>
+    </Sheet>
   )
 }

@@ -36,10 +36,17 @@ export const SystemInfoStore = create<SystemInfoStoreType>()((set) => ({
 // 测试 email,以下代码未使用
 interface SystemEmailType {
   Emal: string
+  AssistantID: string
   updateEmail: (Email: string) => void
+  updateAssistantID: (AssistantID: string) => void
+  // getAssistantID: () => string
 }
 
-export const SystemEmailStore = create<SystemEmailType>()((set) => ({
+export const SystemStore = create<SystemEmailType>()((set) => ({
   Emal: 'liuyenhui@sina.com',
-  updateEmail: async (Email: string): Promise<void> => set(() => ({ Emal: Email }))
+  AssistantID: '',
+  updateEmail: async (Email: string): Promise<void> => set(() => ({ Emal: Email })),
+  updateAssistantID: async (AssistantID: string): Promise<void> =>
+    set(() => ({ AssistantID: AssistantID })),
+  // getAssistantID: async ()=>get(()=>({''}))
 }))

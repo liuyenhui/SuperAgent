@@ -2,6 +2,7 @@ import path from 'node:path'
 import fs from 'node:fs'
 import yaml from 'js-yaml'
 import log from 'electron-log/main'
+import { is } from '@electron-toolkit/utils'
 
 export function AssistantsLoad(respath: string): Array<unknown> {
   const assistantlist: Array<unknown> = []
@@ -15,7 +16,9 @@ export function AssistantsLoad(respath: string): Array<unknown> {
         const filename = path.basename(filepath)
         // Config字段是助手基本信息
         assistant.Config['FileName'] = filename
-        assistant.Config['ImagePath'] = path.join(loadpath, assistant.Config['ImageFile'])
+        assistant.Config['ImagePath'] = is.dev
+          ? path.join(loadpath, assistant.Config['ImageFile'])
+          : path.join(loadpath, assistant.Config['ImageFile'])
         assistantlist.push(assistant.Config)
       }
     })
