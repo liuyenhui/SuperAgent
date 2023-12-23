@@ -17,11 +17,19 @@ declare namespace System {
     id: string
     filename: string
   }
-  // 多个文件,多个消息集合,一个助手的所有关联数据
+  // 关联一个Function
+  interface CloudFile {
+    type: 'Local' | 'API' | 'JSCode' | 'PythonCode' | 'Assistant'
+    id: string
+    filename: string
+  }
+  // 多个文件,多个消息集合,一个助手的所有关联数据 对应Open API code_interpreter,retrieval,function
   interface AssistantData {
     AssistantID: string
+    CodeInterpreter: boolean
     Messages: Array<Message>
     CloudFiles: Array<CloudFile>
+    FunctionS: Array<CloudFile>
   }
   // 助手的基本信息,包含模型类型,助手名称等
   interface AssistantBase {

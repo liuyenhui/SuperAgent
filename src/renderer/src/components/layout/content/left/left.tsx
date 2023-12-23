@@ -18,7 +18,7 @@ export default function Left(): JSX.Element {
       minWidth={LEFT_WIDTH}
       width={LEFT_WIDTH}
       sx={{
-        marginLeft: lefthidden ? `-${LEFT_WIDTH}px` : `0`,
+        marginLeft: lefthidden ? `-${LEFT_WIDTH}px` : `0`
         // transition: '0 1s',
         // overflowY: 'marginLeft'
       }}

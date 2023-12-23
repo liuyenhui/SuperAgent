@@ -48,7 +48,7 @@ export const SystemStore = create<SystemEmailType>()((set) => ({
   AssistantID: '',
   LeftHidden: false,
   updateEmail: async (Email: string): Promise<void> => set(() => ({ Emal: Email })),
-  updateAssistantID: async (AssistantID: string): Promise<void> =>
-    set(() => ({ AssistantID: AssistantID })),
+  updateAssistantID: async (assistantid: string): Promise<void> =>
+    set(() => ({ AssistantID: assistantid })),
   updateLeftHidden: async (): Promise<void> => set((state) => ({ LeftHidden: !state.LeftHidden }))
 }))

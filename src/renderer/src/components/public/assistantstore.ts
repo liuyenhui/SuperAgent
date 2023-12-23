@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import log from 'electron-log/renderer'
+// import log from 'electron-log/renderer'
 /**
  * Assistant Store
  */
@@ -20,17 +20,23 @@ interface AssistantsStoreType {
 export const AssistantsStore = create<AssistantsStoreType>()((set) => ({
   Assistants: new Map<string, System.Assistant>(),
 
-  InsertAssistant: async (assistant: System.Assistant): Promise<void> => {
-    set((state) => {
-      state.Assistants.set(assistant.AssistantBase.AssistantID as string, assistant)
-      log.info(
-        `inst assistant LoaclID:a=${assistant.AssistantBase.AssistantID} Name:${assistant.AssistantBase.Name}`
+  InsertAssistant: async (assistant: System.Assistant): Promise<void> =>
+    set((state) => ({
+      Assistants: new Map<string, System.Assistant>(state.Assistants).set(
+        assistant.AssistantBase.AssistantID as string,
+        assistant
       )
-      return {
-        Assistants: state.Assistants
-      }
-    })
-  },
+    })),
+
+  // set((state) => {
+  //   state.Assistants.set(assistant.AssistantBase.AssistantID as string, assistant)
+  //   log.info(
+  //     `inst assistant AssistantID:=${assistant.AssistantBase.AssistantID} Name:${assistant.AssistantBase.Name}`
+  //   )
+  //   return {
+  //     Assistants: { ...state.Assistants }
+  //   }
+  // })
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   LoadMessages: (_assistantid): void => {},
