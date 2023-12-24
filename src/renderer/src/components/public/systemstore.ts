@@ -38,17 +38,21 @@ interface SystemEmailType {
   Emal: string
   AssistantID: string
   LeftHidden: boolean
+  Loading: boolean
   updateEmail: (Email: string) => void
   updateAssistantID: (AssistantID: string) => void
   updateLeftHidden: () => void
+  updateLeftLoading: () => void
 }
 
 export const SystemStore = create<SystemEmailType>()((set) => ({
   Emal: 'liuyenhui@sina.com',
   AssistantID: '',
   LeftHidden: false,
+  Loading: true,
   updateEmail: async (Email: string): Promise<void> => set(() => ({ Emal: Email })),
   updateAssistantID: async (assistantid: string): Promise<void> =>
     set(() => ({ AssistantID: assistantid })),
-  updateLeftHidden: async (): Promise<void> => set((state) => ({ LeftHidden: !state.LeftHidden }))
+  updateLeftHidden: async (): Promise<void> => set((state) => ({ LeftHidden: !state.LeftHidden })),
+  updateLeftLoading: async (): Promise<void> => set((state) => ({ Loading: !state.Loading }))
 }))

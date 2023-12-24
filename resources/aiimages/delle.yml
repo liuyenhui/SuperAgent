@@ -5,7 +5,7 @@ Config:
   Prompt:
   Type: image
   Functions: false
-  Code_interpreter: false
+  CodeInterpreter: false
   Retrieval: false
   Files: null
   AssistantID: asst_noY33f79IxBKbwFebYEEh52g

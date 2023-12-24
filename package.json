@@ -31,6 +31,11 @@
     "@emotion/babel-plugin": "^11.11.0",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.15.1",
+    "@mui/joy": "^5.0.0-beta.19",
+    "@mui/material": "^5.15.1",
+    "@mui/styled-engine": "^5.15.1",
+    "@rollup/plugin-commonjs": "^25.0.7",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^18.17.5",
     "@types/path-browserify": "^1.0.2",
@@ -42,23 +47,14 @@
     "electron-vite": "^1.0.27",
     "eslint": "^8.47.0",
     "eslint-plugin-react": "^7.33.2",
+    "immer": "^10.0.3",
+    "path-browserify": "^1.0.1",
     "prettier": "^3.0.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-i18next": "^13.5.0",
     "typescript": "^5.1.6",
     "vite": "^4.4.9",
-
-
-    "zustand": "^4.4.7",
-    "@mui/icons-material": "^5.15.1",
-    "@mui/joy": "^5.0.0-beta.19",
-    "@mui/material": "^5.15.1",
-    "@mui/styled-engine": "^5.15.1",
-    "@rollup/plugin-commonjs": "^25.0.7",
-    "react-i18next": "^13.5.0",
-    "path-browserify": "^1.0.1"
-
-
-
+    "zustand": "^4.4.7"
   }
 }

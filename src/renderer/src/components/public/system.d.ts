@@ -33,7 +33,7 @@ declare namespace System {
   }
   // 助手的基本信息,包含模型类型,助手名称等
   interface AssistantBase {
-    [prop: string]: string | number
+    [prop: string]: string | number | boolean
   }
   // 一个(助手信息 + 管理数据)
   interface Assistant {

@@ -5,7 +5,6 @@ import {
   Divider,
   Grid,
   IconButton,
-  LinearProgress,
   Sheet,
   Stack,
   Tooltip,
@@ -16,7 +15,6 @@ import { SvgPathMap, SvgIcons } from '@renderer/components/public/SvgIcons'
 import { SystemStore } from '@renderer/components/public/systemstore'
 import { AssistantsStore } from '@renderer/components/public/assistantstore'
 import log from 'electron-log'
-import { useState } from 'react'
 interface ChatPropType {
   assistant: System.Assistant
 }
@@ -48,8 +46,14 @@ function PopListView(): JSX.Element {
 }
 // 头像
 function AvatarImage(props: ChatPropType): JSX.Element {
-  const [open, setOpen] = useState(false)
-  const assistant = props.assistant
+  const assistants = AssistantsStore((state) => state.Assistants) //props.assistant
+  const UpdateAssistantCodeInterpreter = AssistantsStore(
+    (state) => state.UpdateAssistantCodeInterpreter
+  )
+  // 获取Store中的 assistant
+  const assistant = assistants.get(props.assistant?.AssistantBase.AssistantID as string)
+  // 获取代码解释器开关状态
+  const open = assistant?.AssistantBase.CodeInterpreter
   return (
     <Stack direction="column" justifyContent="center" alignItems="center" sx={{ p: '5px' }}>
       <Avatar
@@ -65,7 +69,7 @@ function AvatarImage(props: ChatPropType): JSX.Element {
       >
         <IconButton
           onClick={() => {
-            setOpen(!open)
+            UpdateAssistantCodeInterpreter(assistant?.AssistantBase.AssistantID as string)
           }}
           color={open ? 'success' : 'neutral'}
           sx={{ p: 0, minHeight: '18px', bottom: '-4px' }}
@@ -79,6 +83,7 @@ function AvatarImage(props: ChatPropType): JSX.Element {
 // 名称及提示词
 function AssistantDescrib(props: ChatPropType): JSX.Element {
   const { assistant } = props
+
   return (
     <Grid sx={{ userSelect: 'none' }}>
       <Typography level="title-md" id="card-description">
@@ -88,7 +93,7 @@ function AssistantDescrib(props: ChatPropType): JSX.Element {
         noWrap
         level="body-sm"
         aria-describedby="card-description"
-        sx={{ textOverflow: 'ellipsis' }}
+        // sx={{ textOverflow: 'ellipsis' }}
       >
         {assistant?.AssistantBase.Prompt}
       </Typography>
@@ -141,19 +146,6 @@ export default function ChatHead(): JSX.Element {
           </Grid>
         </Stack>
       </Card>
-      <LinearProgress
-        thickness={2}
-        sx={{
-          position: 'fixed',
-          width: '100%',
-          bottom: '0',
-          left: '0',
-          zIndex: '10',
-          m: '0',
-          // 全局修改
-          display: assistantid ? 'flex' : 'none'
-        }}
-      />
     </Sheet>
   )
 }
