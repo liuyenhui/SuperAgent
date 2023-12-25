@@ -1,4 +1,5 @@
 import { Box, CssVarsProvider } from '@mui/joy'
+
 // 进程通信,proload 见:electron/preload/index.ts
 // console.log(window.api())
 import Layout from './components/layout/layout'

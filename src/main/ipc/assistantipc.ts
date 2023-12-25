@@ -6,7 +6,7 @@
  *
  */
 import { ipcMain } from 'electron'
-import { AssistantsLoad } from '../assistantsload'
+import { AssistantsLoad, AssistantsSave } from '../assistantsload'
 
 type MainIPCType = {
   app: Electron.App
@@ -17,15 +17,17 @@ type MainIPCType = {
 ipcMain.on('get_assistants', (event) => {
   console.log(`event:${event}`)
   const assistantlist = AssistantsLoad(MainIPC.resourcesPath)
-  // console.log(assistant)
-  // console.log(assistant.Config.Prompt)
-  // // 写入yml文件
-  // assistant.Config.Prompt = "小红书作者"
-  // // 序列化对象 info
-  // let yamlStr = yaml.dump(assistant);
-  // console.log(yamlStr)
-  // fs.writeFileSync(filename,yamlStr,'utf-8')
   event.returnValue = assistantlist
+})
+// 同步请求
+ipcMain.on('assistants_load', (event) => {
+  const assistantlist = AssistantsLoad(MainIPC.resourcesPath)
+  event.returnValue = assistantlist
+})
+
+ipcMain.on('assistants_save', (event, assistants) => {
+  AssistantsSave(MainIPC.resourcesPath, assistants)
+  event.returnValue = true
 })
 
 // 渲染进程调用invoke

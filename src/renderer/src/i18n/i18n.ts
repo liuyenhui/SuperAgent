@@ -4,11 +4,13 @@ import { initReactI18next } from 'react-i18next'
 import en from '@renderer/assets/locales/en.json'
 import zh from '@renderer/assets/locales/zh.json'
 
-export const defaultLanguage = 'zh'
+const language = 'en'
 
-export const defaultNamespace = 'default'
+const defaultLanguage = language
 
-export const resources = {
+const defaultNamespace = 'default'
+
+const resources = {
   en: {
     [defaultNamespace]: en
   },

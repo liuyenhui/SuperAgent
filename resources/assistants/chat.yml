@@ -11,3 +11,5 @@ Config:
   AssistantID: asst_noY33f73IxBKbwFebYEEh52g
   Instructions: null,
   ImageFile: chat.png
+  FileName: chat.yml
+  ImagePath: resources/assistants/chat.png

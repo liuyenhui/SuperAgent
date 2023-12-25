@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 /**
  * System Store
@@ -17,21 +18,28 @@ interface SystemInfoStoreType {
   update: (name: string, value: string | number) => void
 }
 // 通过属性名,修改属性值
-export const SystemInfoStore = create<SystemInfoStoreType>()((set) => ({
-  info: InfoData,
-  // 更新属性
-  update: async (name, value): Promise<void> =>
-    set(() => {
-      // InfoData[name] = value 以下代码 [name]:value 替代
-      return {
-        // info:InfoData 无效    展开的目的是复制Info 触发改变
-        info: {
-          ...InfoData,
-          [name]: value
-        }
-      }
-    })
-}))
+export const SystemInfoStore = create<SystemInfoStoreType>()(
+  persist(
+    (set) => ({
+      info: InfoData,
+      // 更新属性
+      update: async (name, value): Promise<void> =>
+        set(() => {
+          // InfoData[name] = value 以下代码 [name]:value 替代
+          return {
+            // info:InfoData 无效    展开的目的是复制Info 触发改变
+            info: {
+              ...InfoData,
+              [name]: value
+            }
+          }
+        })
+    }),
+    {
+      name: 'systeminfo'
+    }
+  )
+)
 
 // 测试 email,以下代码未使用
 interface SystemEmailType {
