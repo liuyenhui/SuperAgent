@@ -12,18 +12,20 @@ import {
 } from '@mui/joy'
 import { RIGHT_HEAD_HEIGHT } from '@renderer/components/public/constants'
 import { SvgPathMap, SvgIcons } from '@renderer/components/public/SvgIcons'
-import { SystemStore } from '@renderer/components/public/systemstore'
+import { SystemInfoStore } from '@renderer/components/public/systemstore'
 import { AssistantsStore } from '@renderer/components/public/assistantstore'
+import { CludeFiles } from './cludefiles/cludefiles'
+import { Functions } from './functions/function'
 import log from 'electron-log'
 interface ChatPropType {
   assistant: System.Assistant
 }
 // 侧边栏隐藏
 function PopListView(): JSX.Element {
-  const lefthidden = SystemStore((state) => state.LeftHidden)
-  const updatelefthidden = SystemStore((state) => state.updateLeftHidden)
+  const lefthidden = SystemInfoStore((state) => state.info.LeftHidden)
+  const update = SystemInfoStore((state) => state.update)
   const onClick = (): void => {
-    updatelefthidden()
+    update('LeftHidden', !lefthidden)
   }
   return (
     <Sheet
@@ -100,8 +102,9 @@ function AssistantDescrib(props: ChatPropType): JSX.Element {
     </Grid>
   )
 }
+
 export default function ChatHead(): JSX.Element {
-  const assistantid = SystemStore((state) => state.AssistantID)
+  const assistantid = SystemInfoStore((state) => state.info.AssistantID)
   log.info(assistantid)
   const assistant = AssistantsStore.getState().Assistants.get(assistantid)
   log.info(`ChatHead getassistant id:${assistantid} name:${assistant?.AssistantBase.Name}`)
@@ -140,8 +143,12 @@ export default function ChatHead(): JSX.Element {
 
             <Divider orientation="vertical"></Divider>
 
-            <Grid xs={6} md={6}>
-              <AssistantDescrib assistant={assistant as System.Assistant}></AssistantDescrib>
+            <Grid container xs={6} md={6}>
+              <Stack direction="column" justifyContent="space-between" alignItems="flex-start" width="100%">
+                <CludeFiles></CludeFiles>
+                <Divider sx={{ml:"30px"}} orientation="horizontal"></Divider>
+                <Functions></Functions>
+              </Stack>
             </Grid>
           </Grid>
         </Stack>

@@ -3,9 +3,9 @@ import { Box, Stack } from '@mui/joy'
 import HeadView from './head/headview'
 import ListView from './list/listview'
 import { LEFT_WIDTH } from '@renderer/components/public/constants'
-import { SystemStore } from '@renderer/components/public/systemstore'
+import { SystemInfoStore } from '@renderer/components/public/systemstore'
 export default function Left(): JSX.Element {
-  const lefthidden = SystemStore((state) => state.LeftHidden)
+  const lefthidden = SystemInfoStore((state) => state.info.LeftHidden)
 
   // 触发隐藏左边栏
 

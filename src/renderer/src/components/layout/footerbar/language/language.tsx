@@ -6,7 +6,7 @@ import { SystemInfoStore } from '@renderer/components/public/systemstore'
 import { useEffect } from 'react'
 
 export default function Language(): JSX.Element {
-  const updateinfo = SystemInfoStore.getState().update
+  const update = SystemInfoStore.getState().update
   const language = SystemInfoStore((state) => state.info.Language) as string
   useEffect(() => {
     i18n.changeLanguage(language)
@@ -23,7 +23,7 @@ export default function Language(): JSX.Element {
         fontSize: '12px'
       }}
       onChange={(_event, value) => {
-        updateinfo('Language', value as string)
+        update('Language', value as string)
         value ? i18n.changeLanguage(value) : null
       }}
     >

@@ -2,10 +2,10 @@ import Box from '@mui/joy/Box'
 import { LinearProgress, Stack } from '@mui/joy'
 import FooterBar from './footerbar/footerbar'
 import Content from './content/content'
-import { SystemStore } from '../public/systemstore'
+import { SystemInfoStore } from '../public/systemstore'
 
 export default function Layout(): JSX.Element {
-  const loading = SystemStore((state) => state.Loading)
+  const loading = SystemInfoStore((state) => state.info.Loading)
   return (
     <Box sx={{ width: 1 }} display="grid">
       <Stack direction="column" alignItems="stretch" justifyContent="flex-start">
