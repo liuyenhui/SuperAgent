@@ -5,7 +5,7 @@
  *  2. 处理OpenAI API
  *
  */
-import { ipcMain } from 'electron'
+import { ipcMain, shell } from 'electron'
 import { AssistantsLoad, AssistantsSave } from '../assistantsload'
 
 type MainIPCType = {
@@ -13,12 +13,7 @@ type MainIPCType = {
   mainWindow: Electron.BrowserWindow
   resourcesPath: string
 }
-// !!!同步消息返回 assistantlist,未使用,同步消息会阻塞
-ipcMain.on('get_assistants', (event) => {
-  console.log(`event:${event}`)
-  const assistantlist = AssistantsLoad(MainIPC.resourcesPath)
-  event.returnValue = assistantlist
-})
+
 // 同步请求
 ipcMain.on('assistants_load', (event) => {
   const assistantlist = AssistantsLoad(MainIPC.resourcesPath)
@@ -30,10 +25,15 @@ ipcMain.on('assistants_save', (event, assistants) => {
   event.returnValue = true
 })
 
-// 渲染进程调用invoke
+// 渲染进程调用invoke 异步
 ipcMain.handle('invoke_assistants', () => {
   const assistantlist = AssistantsLoad(MainIPC.resourcesPath)
   return assistantlist
+})
+// 浏览器打开网址
+ipcMain.handle('invoke_openurl', (_event, arge) => {
+  shell.openExternal(arge)
+  return null
 })
 
 // 主动消息

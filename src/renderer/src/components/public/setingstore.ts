@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+// AI模型类型
 interface SetingModelType {
   id: string
   object: string
@@ -10,10 +11,21 @@ interface SetingModelType {
 
 interface SetingStoreType {
   SetingModel: Array<SetingModelType>
+  SetOpenAiApiKeyState: boolean
 }
 
 const SetingStoreData: SetingStoreType = {
-  SetingModel: []
+  SetingModel: [],
+  SetOpenAiApiKeyState: true
 }
 
 export const SetingStore = create<SetingStoreType>()(() => SetingStoreData)
+
+export const GetOpenAiApiKeyState = (): boolean =>
+  SetingStore((state) => state.SetOpenAiApiKeyState)
+
+export const SetOpenAiApiKeyState = (state: boolean): void =>
+  SetingStore.setState((store) => ({
+    ...store,
+    SetOpenAiApiKeyState: state
+  }))

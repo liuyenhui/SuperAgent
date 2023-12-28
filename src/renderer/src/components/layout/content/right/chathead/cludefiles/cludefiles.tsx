@@ -3,8 +3,8 @@ import { SvgIcons, SvgPathMap } from '@renderer/components/public/SvgIcons'
 function BoxFiles(): JSX.Element {
   return (
     <Stack direction="column" justifyContent="flex-start" alignItems="center" marginLeft="3px">
-      <SvgIcons fontSize='small' d={SvgPathMap.Note}></SvgIcons>
-      <Typography sx={{fontSize:'10px'}}>系统文件</Typography>
+      <SvgIcons fontSize="small" d={SvgPathMap.Note}></SvgIcons>
+      <Typography sx={{ fontSize: '10px' }}>系统文件</Typography>
     </Stack>
   )
 }

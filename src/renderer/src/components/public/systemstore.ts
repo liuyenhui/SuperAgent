@@ -15,6 +15,10 @@ interface SystemInfoType {
   Language: string
   LeftHidden: boolean
   Loading: boolean
+  OpenAIAPIKey: string
+  OpenAIConnected: boolean
+  OpenAIBaseURL: string
+  OpenAIBalance: number
 }
 
 const InfoData: SystemInfoType = {
@@ -26,7 +30,11 @@ const InfoData: SystemInfoType = {
   EndPoint: '',
   Language: 'en',
   LeftHidden: false,
-  Loading: false
+  Loading: true,
+  OpenAIAPIKey: '',
+  OpenAIConnected: false,
+  OpenAIBaseURL: '',
+  OpenAIBalance: 0
 }
 
 interface SystemInfoStoreType {

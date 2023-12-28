@@ -14,43 +14,6 @@ export default function ListView(): JSX.Element {
         <AssistantItem></AssistantItem>
         <Images></Images>
         <Files></Files>
-
-        {/* <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem>
-        <AssistantItem></AssistantItem> */}
       </AccordionGroup>
     </Sheet>
   )

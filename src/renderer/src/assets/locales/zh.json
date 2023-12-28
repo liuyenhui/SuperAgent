@@ -15,5 +15,16 @@
   "chat":{
     "sendmessage":"发送",
     "sendfiles":"发送文件:"
+  },
+  "seting":{
+    "title":"设置你的Openai API Key",
+    "desc":"购买API KEY 访问",
+    "desclink":"openai.com",
+    "desclinkurl":"https://openai.com",
+    "apikeydesc":"API KEY",
+    "apikeyplancehold":"请输入你的API KEY",
+    "baseurldesc":"Openai API接口地址",
+    "baseurlplancehold":"https://api.openai.com",
+    "submit":"Submit"
   }
 }

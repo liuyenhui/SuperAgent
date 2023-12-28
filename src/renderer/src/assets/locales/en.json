@@ -1,6 +1,6 @@
 {
     "name": "NAME",
-    
+
     "todos": {
       "allCompleted": "All completed",
       "allNotCompleted": "All not completed"
@@ -16,5 +16,16 @@
     "chat":{
       "sendmessage":"Send Message",
       "sendfiles":"Send Files:"
+    },
+    "seting":{
+      "title":"Seting your openai api key",
+      "desc":"Buy api key from ",
+      "desclink":"openai.com",
+      "desclinkurl":"https://openai.com",
+      "apikeydesc":"API Key",
+      "apikeyplancehold":"please input key for you",
+      "baseurldesc":"API Base Url",
+      "baseurlplancehold":"https://api.openai.com",
+      "submit":"Submit"
     }
-} 
+}

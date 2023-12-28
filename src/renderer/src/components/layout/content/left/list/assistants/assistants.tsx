@@ -9,7 +9,6 @@ import { SvgIcons, SvgPathMap } from '@renderer/components/public/SvgIcons'
 import { AssistantsStore } from '@renderer/components/public/assistantstore'
 import { SystemInfoStore } from '@renderer/components/public/systemstore'
 
-
 export default function AssistantItem(): JSX.Element {
   const { t } = useTranslation()
   // 当前展开的列表

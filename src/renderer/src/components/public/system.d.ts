@@ -52,19 +52,4 @@ declare namespace System {
   interface ImageBase {
     [prop: string]: string | number
   }
-
-  /**
-   * 系统基本信息 包含邮箱,Key,BaseUrl等
-   */
-  // 系统信息任意属性名,可动态修改属性值 例如 Objece[name] = value 其中 name value均为string ,value 可为 number
-  interface Info {
-    [prop: string]: string | number
-  }
-  // interface Info{
-  //     AppVersion:string
-  //     OpenAiToken:string
-  //     EndPoint:string
-  //     Email:string
-  //     Name:string
-  // }
 }
