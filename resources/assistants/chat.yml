@@ -5,7 +5,7 @@ Config:
   Prompt: 小红书作者
   Type: chat
   Functions: false
-  CodeInterpreter: false
+  CodeInterpreter: true
   Retrieval: false
   Files: null
   AssistantID: asst_noY33f73IxBKbwFebYEEh52g

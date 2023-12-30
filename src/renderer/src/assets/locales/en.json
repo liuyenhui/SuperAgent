@@ -22,10 +22,11 @@
       "desc":"Buy api key from ",
       "desclink":"openai.com",
       "desclinkurl":"https://openai.com",
-      "apikeydesc":"API Key",
+      "apikeydesc":"Openai API Key",
       "apikeyplancehold":"please input key for you",
       "baseurldesc":"API Base Url",
       "baseurlplancehold":"https://api.openai.com",
-      "submit":"Submit"
+      "submit":"Submit",
+      "test":"Test Connect"
     }
 }

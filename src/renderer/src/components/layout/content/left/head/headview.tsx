@@ -1,11 +1,13 @@
-import { Avatar, Box, Button, Card, Sheet, Stack, Typography } from '@mui/joy'
+import { Avatar, Badge, Box, Button, Card, Sheet, Stack, Typography } from '@mui/joy'
 import iconfile from '@renderer/assets/chatgpt.png'
 import { LEFT_HEAD_HEIGHT } from '@renderer/components/public/constants'
 import { SystemInfoStore } from '@renderer/components/public/systemstore'
-import { SetOpenAiApiKeyState } from '@renderer/components/public/setingstore'
+import { SetingStore, SetOpenDialogState, KeyState } from '@renderer/components/public/setingstore'
+
 export default function HeadView(): JSX.Element {
   const update = SystemInfoStore((state) => state.update)
-  const setOpen = SetOpenAiApiKeyState
+  const setOpen = SetOpenDialogState
+  const userstate = SetingStore((state) => state.UserState)
 
   return (
     <Box height={LEFT_HEAD_HEIGHT}>
@@ -22,14 +24,24 @@ export default function HeadView(): JSX.Element {
             border: 'hidden'
           }}
         >
-          <Avatar
-            alt="Remy Sharp"
-            sx={{
-              m: 1,
-              '&:hover': { boxShadow: ' 0px 0px 3px', borderColor: 'rgba(0, 0, 0, 0.24)' }
+          <Badge
+            badgeInset="22%"
+            size="sm"
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right'
             }}
-            src={iconfile}
-          />
+            color={userstate == KeyState.None ? 'warning' : 'success'}
+          >
+            <Avatar
+              alt="Remy Sharp"
+              sx={{
+                m: 1,
+                '&:hover': { boxShadow: ' 0px 0px 3px', borderColor: 'rgba(0, 0, 0, 0.24)' }
+              }}
+              src={iconfile}
+            />
+          </Badge>
         </Sheet>
         <Stack direction="column" justifyContent="center" alignItems="center" sx={{ m: 0 }}>
           <Button

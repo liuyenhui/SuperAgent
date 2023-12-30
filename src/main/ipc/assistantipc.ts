@@ -7,7 +7,9 @@
  */
 import { ipcMain, shell } from 'electron'
 import { AssistantsLoad, AssistantsSave } from '../assistantsload'
-
+import log from 'electron-log'
+import { OpenAI } from 'openai'
+// import {ChatCompletionStream} from 'openai/lib/ChatCompletionStream'
 type MainIPCType = {
   app: Electron.App
   mainWindow: Electron.BrowserWindow
@@ -36,6 +38,23 @@ ipcMain.handle('invoke_openurl', (_event, arge) => {
   return null
 })
 
+// 设置API KEY
+ipcMain.handle('test_openai_key', async (_event, arge) => {
+  const apikey = arge[0]
+  const baseurl = arge[1]
+  log.info(`apikey:${arge[0]} baseurl:${arge[1]}`)
+  const openai = new OpenAI({
+    apiKey: apikey,
+    baseURL: baseurl
+  })
+  try {
+    const models = await openai.models.list()
+    return Promise.resolve(models)
+  } catch (e) {
+    // 无法传递error https://github.com/electron/electron/issues/24427
+    return Promise.reject(e)
+  }
+})
 // 主动消息
 // MainIPC.mainWindow.webContents.send('respone_assistants', callback)
 export const MainIPC: MainIPCType = {} as MainIPCType

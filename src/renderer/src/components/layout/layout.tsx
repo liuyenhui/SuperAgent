@@ -3,7 +3,7 @@ import { LinearProgress, Stack } from '@mui/joy'
 import FooterBar from './footerbar/footerbar'
 import Content from './content/content'
 import { SystemInfoStore } from '../public/systemstore'
-import {SetOpenAiAPIKeyDialog} from './setopenaiapikey'
+import { SetOpenAiAPIKeyDialog } from './setopenaiapikey'
 
 export default function Layout(): JSX.Element {
   const loading = SystemInfoStore((state) => state.info.Loading)

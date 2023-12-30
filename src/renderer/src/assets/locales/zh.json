@@ -21,10 +21,11 @@
     "desc":"购买API KEY 访问",
     "desclink":"openai.com",
     "desclinkurl":"https://openai.com",
-    "apikeydesc":"API KEY",
+    "apikeydesc":"Openai API KEY",
     "apikeyplancehold":"请输入你的API KEY",
     "baseurldesc":"Openai API接口地址",
     "baseurlplancehold":"https://api.openai.com",
-    "submit":"Submit"
+    "submit":"确定",
+    "test":"测试连接"
   }
 }
