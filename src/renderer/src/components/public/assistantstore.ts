@@ -17,7 +17,10 @@ const storage: PersistStorage<AssistantsStoreType> = {
       const assistant: System.Assistant = {
         AssistantBase: assistent
       }
+      // 初始时设置为true, 在invoke_init_assistants验证消息后则可以使用
+      assistant.AssistantBase.Disabled = true
       log.info(assistant)
+
       assistants.set(assistant.AssistantBase.AssistantID as string, assistant)
     }
 
@@ -48,6 +51,8 @@ interface AssistantsStoreType {
   Assistants: System.Assistants
   // 从文件读取, assistant.AssistantBase 代表一个文件的内容
   InsertAssistant: (assistant: System.Assistant) => void
+  // 更新全部助手,invoke_init_assistants消息返回更新
+  UpdateAssistants: (assistants: System.Assistants) => void
   // 修改 CodeInterpreter
   UpdateAssistantCodeInterpreter: (AssistantID: string) => void
   // 读取消息
@@ -65,10 +70,16 @@ export const AssistantsStore = create<AssistantsStoreType>()(
 
       InsertAssistant: async (assistant: System.Assistant): Promise<void> =>
         set((state) => ({
+          ...state,
           Assistants: new Map<string, System.Assistant>(state.Assistants).set(
-            assistant.AssistantBase.AssistantID as string,
+            assistant.AssistantBase.AssistantID,
             assistant
           )
+        })),
+      UpdateAssistants: (assistants: System.Assistants): void =>
+        set((state) => ({
+          ...state,
+          Assistants: new Map<string, System.Assistant>(assistants)
         })),
       UpdateAssistantCodeInterpreter: (AssistantID: string): void =>
         set((state) => {

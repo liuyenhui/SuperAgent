@@ -24,7 +24,7 @@
     "apikeydesc":"Openai API KEY",
     "apikeyplancehold":"请输入你的API KEY",
     "baseurldesc":"Openai API接口地址",
-    "baseurlplancehold":"https://api.openai.com",
+    "baseurlplancehold":"https://api.openai.com/v1",
     "submit":"确定",
     "test":"测试连接"
   }

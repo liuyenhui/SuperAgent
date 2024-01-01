@@ -53,15 +53,12 @@ function AvatarImage(props: ChatPropType): JSX.Element {
     (state) => state.UpdateAssistantCodeInterpreter
   )
   // 获取Store中的 assistant
-  const assistant = assistants.get(props.assistant?.AssistantBase.AssistantID as string)
+  const assistant = assistants.get(props.assistant?.AssistantBase.AssistantID)
   // 获取代码解释器开关状态
   const open = assistant?.AssistantBase.CodeInterpreter
   return (
     <Stack direction="column" justifyContent="center" alignItems="center" sx={{ p: '5px' }}>
-      <Avatar
-        alt={assistant?.AssistantBase.Name as string}
-        src={assistant?.AssistantBase.ImagePath as string}
-      />
+      <Avatar alt={assistant?.AssistantBase.Name} src={assistant?.AssistantBase.ImagePath} />
       <Tooltip
         arrow
         enterDelay={500}
@@ -144,9 +141,14 @@ export default function ChatHead(): JSX.Element {
             <Divider orientation="vertical"></Divider>
 
             <Grid container xs={6} md={6}>
-              <Stack direction="column" justifyContent="space-between" alignItems="flex-start" width="100%">
+              <Stack
+                direction="column"
+                justifyContent="space-between"
+                alignItems="flex-start"
+                width="100%"
+              >
                 <CludeFiles></CludeFiles>
-                <Divider sx={{ml:"30px"}} orientation="horizontal"></Divider>
+                <Divider sx={{ ml: '30px' }} orientation="horizontal"></Divider>
                 <Functions></Functions>
               </Stack>
             </Grid>

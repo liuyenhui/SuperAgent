@@ -25,7 +25,7 @@
       "apikeydesc":"Openai API Key",
       "apikeyplancehold":"please input key for you",
       "baseurldesc":"API Base Url",
-      "baseurlplancehold":"https://api.openai.com",
+      "baseurlplancehold":"https://api.openai.com/v1",
       "submit":"Submit",
       "test":"Test Connect"
     }

@@ -1,6 +1,8 @@
 Config:
-  LocalID: 8765491765
   Name: Excel Assistent
+  Model: gpt-3.5-turbo-0613
+  Description: null
+  CreateAt: 1704123776
   NameCN: Excel 助手
   Prompt: 你是excel专家,擅长处理excel的各种操作
   Type: chat
@@ -8,8 +10,9 @@ Config:
   CodeInterpreter: true
   Retrieval: false
   Files: null
-  AssistantID: asst_noY88f73IxBKbwFebYEEh37m
+  AssistantID: asst_Dy4m7NACqgMXCfsxA9tdGd7t
   Instructions: null
   ImageFile: excel.png
   FileName: excel.yml
   ImagePath: resources/assistants/excel.png
+  Disabled: false

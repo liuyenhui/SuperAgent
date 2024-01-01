@@ -1,6 +1,8 @@
 Config:
-  LocalID: 8765491238
   Name: ChatGPT
+  Model: gpt-3.5-turbo-0613
+  Description: null
+  CreateAt: 1704123775
   NameCN: ChatGPT
   Prompt: 小红书作者
   Type: chat
@@ -8,8 +10,9 @@ Config:
   CodeInterpreter: true
   Retrieval: false
   Files: null
-  AssistantID: asst_noY33f73IxBKbwFebYEEh52g
+  AssistantID: asst_92b3XSggQKQQaDyvD1MBUE22
   Instructions: null,
   ImageFile: chat.png
   FileName: chat.yml
   ImagePath: resources/assistants/chat.png
+  Disabled: false

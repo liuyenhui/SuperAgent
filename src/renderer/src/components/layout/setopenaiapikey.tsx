@@ -11,7 +11,8 @@ import {
   Stack,
   ModalClose,
   Sheet,
-  LinearProgress
+  LinearProgress,
+  Snackbar
 } from '@mui/joy'
 import { SvgIcons, SvgPathMap } from '@renderer/components/public/SvgIcons'
 
@@ -82,6 +83,13 @@ export function SetOpenAiAPIKeyDialog(): JSX.Element {
     enter: boolean = false,
     overcall: () => void = null as never
   ): void => {
+    // 设置超时
+    setTimeout(() => {
+      if (!test) return
+      setSkvalue('base url reques time out!')
+      setOpensk(true)
+      setTest(false)
+    }, 10000)
     // 测试API KEY IPC
     window.electron.ipcRenderer
       .invoke('test_openai_key', [key, tempurl])
@@ -94,9 +102,6 @@ export function SetOpenAiAPIKeyDialog(): JSX.Element {
         enter ? SetModels(models) : null
         // 设置全局key状态
         enter ? SetAppState(KeyState.Setkey) : null
-        // 测试完成
-        setTest(false)
-        overcall()
       })
       .catch((error) => {
         // 401 表示base url 正确,Key验证失败
@@ -113,11 +118,16 @@ export function SetOpenAiAPIKeyDialog(): JSX.Element {
         enter ? SetAppState(KeyState.None) : null
         console.log(error)
         // 测试完成
+      })
+      .finally(() => {
+        // 测试完成
         setTest(false)
-        overcall()
+        overcall ? overcall() : null
       })
   }
-
+  // 提示消息
+  const [opensk, setOpensk] = useState(false)
+  const [skvalue, setSkvalue] = useState('')
   return (
     <Modal
       open={open}
@@ -216,6 +226,16 @@ export function SetOpenAiAPIKeyDialog(): JSX.Element {
             display: test ? 'flex' : 'none'
           }}
         />
+        <Snackbar
+          autoHideDuration={3000}
+          onClose={() => setOpensk(false)}
+          open={opensk}
+          color="danger"
+          variant="soft"
+          anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+        >
+          {skvalue}
+        </Snackbar>
       </ModalDialog>
     </Modal>
   )

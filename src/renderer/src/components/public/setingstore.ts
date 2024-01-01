@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
+import { subscribeWithSelector } from 'zustand/middleware'
 
 // AI模型类型
 interface SetingModelType {
@@ -24,6 +25,7 @@ interface SetingStoreType {
   OpenAiAPIKey: string
   BaseURL: string
   OpenSetDialog: boolean
+  LockInitAssistants: boolean
 }
 
 const SetingStoreData: SetingStoreType = {
@@ -31,14 +33,15 @@ const SetingStoreData: SetingStoreType = {
   UserState: KeyState.None,
   OpenAiAPIKey: '',
   BaseURL: '',
-  OpenSetDialog: false
+  OpenSetDialog: false,
+  LockInitAssistants: false
 }
 
 export const SetingStore = create<SetingStoreType>()(
-  persist(
-    immer(() => SetingStoreData),
-    { name: 'seting' }
-  )
+  persist(immer(subscribeWithSelector(() => SetingStoreData)), {
+    name: 'seting',
+    partialize: (state) => ({ OpenAiAPIKey: state.OpenAiAPIKey, BaseURL: state.BaseURL })
+  })
 )
 
 export const SetOpenDialogState = (state: boolean): void =>
@@ -82,13 +85,23 @@ export const SetModels = (models: object): void => {
     return false
   })
 
-  // const modelmap = new Map<string, SetingModelType>()
-  // select.map((value) => {
-  //   modelmap.set(value['name'], value as SetingModelType)
-  // })
-  // 设置store
   SetingStore.setState((store) => ({
     ...store,
     SetingModel: select
   }))
 }
+
+export const LockInit = (): boolean => {
+  if (SetingStore.getState().LockInitAssistants) return false
+  SetingStore.setState((store) => ({
+    ...store,
+    LockInitAssistants: true
+  }))
+  return true
+}
+
+export const UnLockInit = (): void =>
+  SetingStore.setState((store) => ({
+    ...store,
+    LockInitAssistants: false
+  }))

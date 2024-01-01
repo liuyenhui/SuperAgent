@@ -57,8 +57,8 @@ function MessageContentAssistent(props: { msg: MessageType }): JSX.Element {
       sx={{ maxWidth: '80%' }}
     >
       <Avatar
-        alt={assistant?.AssistantBase.Name as string}
-        src={assistant?.AssistantBase.ImagePath as string}
+        alt={assistant?.AssistantBase.Name}
+        src={assistant?.AssistantBase.ImagePath}
         // src={imgfile}
       />
       <Stack direction="column" justifyContent="flex-start" alignItems="flex-start">

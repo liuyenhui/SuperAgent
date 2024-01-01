@@ -1,7 +1,5 @@
-import { Card, Typography, Avatar, Grid, Sheet, Link, ButtonGroup, Box } from '@mui/joy'
+import { Card, Typography, Avatar, Grid, Sheet, Link, ButtonGroup, Box, Badge } from '@mui/joy'
 import { SvgIcons, SvgPathMap } from '@renderer/components/public/SvgIcons'
-import { AssistantDialog } from '../assistantdialog'
-import { useState } from 'react'
 import log from 'electron-log'
 import { SystemInfoStore } from '@renderer/components/public/systemstore'
 import { AssistantsStore } from '@renderer/components/public/assistantstore'
@@ -14,16 +12,18 @@ interface AssistantProp {
 }
 
 export function AssistantCard(props: AssistantProp): JSX.Element {
-  const [open, setOpen] = useState(false)
+  // const [open, setOpen] = useState(false)
   const { assistantid } = props
   // 通过assistantid助手信息
-  const assistant = AssistantsStore.getState().Assistants.get(assistantid) as System.Assistant
+  // const assistant = AssistantsStore.getState().Assistants.get(assistantid) as System.Assistant
+  const assistants = AssistantsStore((state) => state.Assistants)
+  const assistant = assistants.get(assistantid)
+
   // 更新当前使用的助手ID的函数
   const update = SystemInfoStore((state) => state.update)
   // 获取正在使用的助手ID
   const selectassistantid = SystemInfoStore((state) => state.info.AssistantID)
-
-  log.info(assistant.AssistantBase.ImagePath)
+  log.info(assistant?.AssistantBase.ImagePath)
 
   const onClick = (event: unknown): void => {
     // setColor('primary')
@@ -40,8 +40,6 @@ export function AssistantCard(props: AssistantProp): JSX.Element {
         color={assistantid === selectassistantid ? 'primary' : 'neutral'}
         //color as ColorPaletteProp}
         sx={{
-          // content: '',
-          // position: 'absolute',
           width: 140,
           height: 40,
           mt: '10px',
@@ -68,11 +66,21 @@ export function AssistantCard(props: AssistantProp): JSX.Element {
               alignItems="center"
               sx={{ p: 0 }}
             >
-              <Avatar
-                alt={assistant.AssistantBase.Name as string}
-                src={assistant.AssistantBase.ImagePath as string}
-                // src={imgfile}
-              />
+              <Badge
+                badgeInset="18%"
+                size="sm"
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right'
+                }}
+                color={assistant?.AssistantBase.Disabled ? 'warning' : 'success'}
+              >
+                <Avatar
+                  alt={assistant?.AssistantBase.Name}
+                  src={assistant?.AssistantBase.ImagePath}
+                  // src={imgfile}
+                />
+              </Badge>
             </Grid>
 
             <Grid xs={7}>
@@ -83,7 +91,7 @@ export function AssistantCard(props: AssistantProp): JSX.Element {
                   href="#interactive-card"
                   sx={{ color: 'text.primary' }}
                 >
-                  {assistant.AssistantBase.Name}
+                  {assistant?.AssistantBase.Name}
                 </Link>
               </Typography>
             </Grid>
@@ -95,13 +103,13 @@ export function AssistantCard(props: AssistantProp): JSX.Element {
           </Grid>
         </ButtonGroup>
       </Card>
-      <AssistantDialog
+      {/* <AssistantDialog
         assistent={assistant}
         open={open}
         onClose={() => {
           setOpen(false)
         }}
-      />
+      /> */}
     </Sheet>
   )
 }
