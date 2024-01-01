@@ -3,9 +3,10 @@ import { Box, Stack } from '@mui/joy'
 import HeadView from './head/headview'
 import ListView from './list/listview'
 import { LEFT_WIDTH } from '@renderer/components/public/constants'
-import { useState } from 'react'
+import { SystemInfoStore } from '@renderer/components/public/systemstore'
 export default function Left(): JSX.Element {
-  const [ml, _setMl] = useState('0px')
+  const lefthidden = SystemInfoStore((state) => state.info.LeftHidden)
+
   // 触发隐藏左边栏
 
   // setTimeout(() => {
@@ -17,9 +18,9 @@ export default function Left(): JSX.Element {
       minWidth={LEFT_WIDTH}
       width={LEFT_WIDTH}
       sx={{
-        marginLeft: ml,
-        transition: 'marginLeft 0.5s',
-        overflowY: 'hidden'
+        marginLeft: lefthidden ? `-${LEFT_WIDTH}px` : `0`
+        // transition: '0 1s',
+        // overflowY: 'marginLeft'
       }}
     >
       <Stack

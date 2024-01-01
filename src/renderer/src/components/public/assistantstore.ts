@@ -1,5 +1,49 @@
 import { create } from 'zustand'
-import log from 'electron-log/renderer'
+import { immer } from 'zustand/middleware/immer'
+import { enableMapSet } from 'immer'
+import { persist, PersistStorage } from 'zustand/middleware'
+
+import log from 'electron-log'
+enableMapSet()
+
+const storage: PersistStorage<AssistantsStoreType> = {
+  getItem: (name) => {
+    const msgname = `${name}_load`
+    // 发送消息文件读取
+    const resultassistents = window.electron.ipcRenderer.sendSync(msgname)
+    log.info(resultassistents)
+    const assistants: System.Assistants = new Map<string, System.Assistant>()
+    for (const assistent of resultassistents) {
+      const assistant: System.Assistant = {
+        AssistantBase: assistent
+      }
+      // 初始时设置为true, 在invoke_init_assistants验证消息后则可以使用
+      assistant.AssistantBase.Disabled = true
+      log.info(assistant)
+
+      assistants.set(assistant.AssistantBase.AssistantID as string, assistant)
+    }
+
+    // const state: StorageValue<AssistantsStoreType> = superjson.parse(str)
+    return {
+      state: {
+        Assistants: assistants
+      }
+    } as never
+  },
+  setItem: (name, value) => {
+    const msgname = `${name}_save`
+    const assistants = value.state.Assistants
+    const sendAssistants = Array.from(assistants.values())
+    // 发送消息文件写入
+    const result = window.electron.ipcRenderer.sendSync(msgname, sendAssistants)
+    log.info(`result=${result},value:${value}`)
+    // localStorage.setItem(name, superjson.stringify(value))
+  },
+  removeItem: (name) => localStorage.removeItem(name)
+}
+
+// import log from 'electron-log/renderer'
 /**
  * Assistant Store
  */
@@ -7,6 +51,10 @@ interface AssistantsStoreType {
   Assistants: System.Assistants
   // 从文件读取, assistant.AssistantBase 代表一个文件的内容
   InsertAssistant: (assistant: System.Assistant) => void
+  // 更新全部助手,invoke_init_assistants消息返回更新
+  UpdateAssistants: (assistants: System.Assistants) => void
+  // 修改 CodeInterpreter
+  UpdateAssistantCodeInterpreter: (AssistantID: string) => void
   // 读取消息
   LoadMessages: (AssistantID: string) => void
   // 读取附加问件
@@ -15,51 +63,43 @@ interface AssistantsStoreType {
   LoadFunction: (AssistantID: string) => void
 }
 
-// const AssisantsData = new Map<string, System.Assistant>()
+export const AssistantsStore = create<AssistantsStoreType>()(
+  persist(
+    immer((set) => ({
+      Assistants: new Map<string, System.Assistant>(),
 
-export const AssistantsStore = create<AssistantsStoreType>()((set) => ({
-  Assistants: new Map<string, System.Assistant>(),
+      InsertAssistant: async (assistant: System.Assistant): Promise<void> =>
+        set((state) => ({
+          ...state,
+          Assistants: new Map<string, System.Assistant>(state.Assistants).set(
+            assistant.AssistantBase.AssistantID,
+            assistant
+          )
+        })),
+      UpdateAssistants: (assistants: System.Assistants): void =>
+        set((state) => ({
+          ...state,
+          Assistants: new Map<string, System.Assistant>(assistants)
+        })),
+      UpdateAssistantCodeInterpreter: (AssistantID: string): void =>
+        set((state) => {
+          const assistant = state.Assistants.get(AssistantID)
+          assistant
+            ? (assistant.AssistantBase.CodeInterpreter = !assistant.AssistantBase.CodeInterpreter)
+            : null
+          // 存储
+        }),
 
-  InsertAssistant: async (assistant: System.Assistant): Promise<void> => {
-    set((state) => {
-      state.Assistants.set(assistant.AssistantBase.AssistantID as string, assistant)
-      log.info(
-        `inst assistant LoaclID:a=${assistant.AssistantBase.AssistantID} Name:${assistant.AssistantBase.Name}`
-      )
-      return {
-        Assistants: state.Assistants
-      }
-    })
-  },
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  LoadMessages: (_assistantid): void => {},
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  LoadCloudFiles: (_assistantid): void => {},
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  LoadFunction: (_assistantid): void => {}
-}))
-
-// export const insertMessage = (id:string,msg:System.Message) => useAssistentsStore.setState(
-//         (state) => {
-//             state.Assisants.get(id)?.AssistantData.Messages.push(msg)
-//             return {Assisants:state.Assisants}
-//         }
-
-//     )
-
-// export const getlastMessage= (id:string,msg:System.Message) => useAssistentsStore.getState(
-//     (state) => {
-
-//     }
-// )
-// const useAssistantsState = create<AssisantsState>((get,set)=>({
-//     Assisants:Assistents,
-//     AddMessage:(AssistantID:string,Message:System.Message)=>
-//         set((AssisantsState)=>{
-//                 AssisantsState.Assisants.get(AssistantID)?.Messages.push(Message)
-//                 return AssisantsState
-//             }
-//         )
-
-// }))
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      LoadMessages: (_assistantid): void => {},
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      LoadCloudFiles: (_assistantid): void => {},
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      LoadFunction: (_assistantid): void => {}
+    })),
+    {
+      name: 'assistants',
+      storage
+    }
+  )
+)

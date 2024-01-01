@@ -27,3 +27,18 @@ export function AssistantsLoad(respath: string): Array<unknown> {
   }
   return assistantlist
 }
+export function AssistantsSave(respath: string, assistants: Array<object>): void {
+  const savepath = path.join(respath, 'assistants')
+  try {
+    assistants.map((assistant) => {
+      const filepath = path.join(savepath, assistant['AssistantBase'].FileName)
+      const savevalue = {
+        Config: assistant['AssistantBase']
+      }
+      const savestr = yaml.dump(savevalue)
+      fs.writeFileSync(filepath, savestr, 'utf-8')
+    })
+  } catch (error) {
+    log.error(`save file:${savepath},e`, error)
+  }
+}

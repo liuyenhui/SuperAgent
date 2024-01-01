@@ -1,11 +1,10 @@
 Config:
-  LocalID: 8765491238
   Name: DELL·E 3
   NameCN: 图像生成-3
   Prompt:
   Type: image
   Functions: false
-  Code_interpreter: false
+  CodeInterpreter: false
   Retrieval: false
   Files: null
   AssistantID: asst_noY33f79IxBKbwFebYEEh52g
