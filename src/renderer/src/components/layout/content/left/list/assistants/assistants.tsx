@@ -7,18 +7,17 @@ import { useTranslation } from 'react-i18next'
 import { AssistantCard } from './assistantcard/assistantcard'
 import { SvgIcons, SvgPathMap } from '@renderer/components/public/SvgIcons'
 import { AssistantsStore } from '@renderer/components/public/assistantstore'
-import { SystemInfoStore } from '@renderer/components/public/systemstore'
+import { UpdateSysinfo} from '@renderer/components/public/systemstore'
 
 export default function AssistantItem(): JSX.Element {
   const { t } = useTranslation()
   // 当前展开的列表
   const [index, setIndex] = useState<number | null>(0)
   // 保存所有助手ID
-  const update = SystemInfoStore((state) => state.update)
   const assistants = Array.from(AssistantsStore((state) => state.Assistants).entries())
   useEffect(() => {
     // 加载后默认选择第一个助手,随后会渲染
-    update('AssistantID', assistants[0][0])
+    UpdateSysinfo('AssistantID', assistants[0][0])
   }, [])
 
   return (

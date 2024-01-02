@@ -12,7 +12,7 @@ import {
 } from '@mui/joy'
 import { RIGHT_HEAD_HEIGHT } from '@renderer/components/public/constants'
 import { SvgPathMap, SvgIcons } from '@renderer/components/public/SvgIcons'
-import { SystemInfoStore } from '@renderer/components/public/systemstore'
+import { SystemInfoStore, UpdateSysinfo } from '@renderer/components/public/systemstore'
 import { AssistantsStore } from '@renderer/components/public/assistantstore'
 import { CludeFiles } from './cludefiles/cludefiles'
 import { Functions } from './functions/function'
@@ -23,9 +23,8 @@ interface ChatPropType {
 // 侧边栏隐藏
 function PopListView(): JSX.Element {
   const lefthidden = SystemInfoStore((state) => state.info.LeftHidden)
-  const update = SystemInfoStore((state) => state.update)
   const onClick = (): void => {
-    update('LeftHidden', !lefthidden)
+    UpdateSysinfo('LeftHidden', !lefthidden)
   }
   return (
     <Sheet

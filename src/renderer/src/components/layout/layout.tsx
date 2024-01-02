@@ -1,11 +1,12 @@
 import Box from '@mui/joy/Box'
-import { LinearProgress, Stack } from '@mui/joy'
+import { LinearProgress, Snackbar, Stack } from '@mui/joy'
 import FooterBar from './footerbar/footerbar'
 import Content from './content/content'
 import { SetingStore, SetAppState, KeyState } from '@renderer/components/public/setingstore'
 import { SetOpenAiAPIKeyDialog } from './setopenaiapikey'
 import { SubscribeStore } from '../public/SubscribeStore'
 import { useEffect, useState } from 'react'
+import { SystemInfoStore, CloseMessage } from '@renderer/components/public/systemstore'
 
 export default function Layout(): JSX.Element {
   const [loading, setLoading] = useState(false)
@@ -18,7 +19,7 @@ export default function Layout(): JSX.Element {
     SetAppState(KeyState.None)
     setLoading(true)
     window.electron.ipcRenderer
-      .invoke('test_openai_key', [key, baseurl])
+      .invoke('test_openai_key', { key: key, url: baseurl })
       .then(() => {
         SetAppState(KeyState.Setkey)
       })
@@ -52,6 +53,32 @@ export default function Layout(): JSX.Element {
       {/* 订阅Sotre组件,空标签,不显示 */}
       <SubscribeStore />
       <SetOpenAiAPIKeyDialog />
+      <PopMessage />
     </Box>
+  )
+}
+function PopMessage(): JSX.Element {
+  const pm = SystemInfoStore((store) => store.info.PopMessage)
+  console.log(pm)
+  // const [content, setContent] = useState('')
+  // window.api.popmessage = (msg: string): void => {
+  //   setContent(msg)
+  //   setOpen(true)
+  // }
+  // useEffect(() => {
+
+  // }, [])
+
+  return (
+    <Snackbar
+      autoHideDuration={3000}
+      onClose={() => CloseMessage()}
+      open={pm.Open}
+      color={pm.Color as never}
+      variant={pm.Variant as never}
+      anchorOrigin={{ vertical: pm.Vertical as never, horizontal: pm.Horizontal as never }}
+    >
+      {pm.Msg}
+    </Snackbar>
   )
 }

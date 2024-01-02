@@ -40,12 +40,11 @@ ipcMain.handle('invoke_openurl', (_event, arge) => {
 
 // 测试API KEY
 ipcMain.handle('test_openai_key', async (_event, arge) => {
-  const apikey = arge[0]
-  const baseurl = arge[1]
+  const { key, url } = arge
   log.info(`apikey:${arge[0]} baseurl:${arge[1]}`)
   const openai = new OpenAI({
-    apiKey: apikey,
-    baseURL: baseurl
+    apiKey: key,
+    baseURL: url
   })
   try {
     const models = await openai.models.list()
@@ -67,7 +66,6 @@ ipcMain.handle('invoke_init_assistants', async (_event, arge) => {
     return Promise.reject(error)
   }
 })
-
 
 /**
  * 同步远程助手
@@ -177,6 +175,5 @@ function AttachLoaclAssistant(local: System.Assistant, remote: Assistant): Syste
 //     log.info(`delete ${result}`)
 //   })
 // }
-
 
 export const MainIPC: MainIPCType = {} as MainIPCType
