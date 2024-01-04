@@ -15,7 +15,11 @@ type MainIPCType = {
   mainWindow: Electron.BrowserWindow
   resourcesPath: string
 }
-
+export const OpenAIParam = {
+  apiKey: '',
+  baseURL: '',
+  timeout: 5000
+}
 // 同步请求
 ipcMain.on('assistants_load', (event) => {
   const assistantlist = AssistantsLoad(MainIPC.resourcesPath)
@@ -44,7 +48,8 @@ ipcMain.handle('test_openai_key', async (_event, arge) => {
   log.info(`apikey:${arge[0]} baseurl:${arge[1]}`)
   const openai = new OpenAI({
     apiKey: key,
-    baseURL: url
+    baseURL: url,
+    timeout: 5000
   })
   try {
     const models = await openai.models.list()
@@ -58,6 +63,10 @@ ipcMain.handle('test_openai_key', async (_event, arge) => {
 // 设置openai key 完成 初始化Assistant,arge[0] as object(key,baseurl) arge[1] assistants
 ipcMain.handle('invoke_init_assistants', async (_event, arge) => {
   const { key, url, assistants } = arge
+  // 设置OpenAIParam
+  OpenAIParam.apiKey = key
+  OpenAIParam.baseURL = url
+
   try {
     const newassistans = await SyncAssistants(key, url, assistants)
     return Promise.resolve(newassistans)
@@ -65,6 +74,21 @@ ipcMain.handle('invoke_init_assistants', async (_event, arge) => {
     log.info(error)
     return Promise.reject(error)
   }
+})
+ipcMain.handle('invoke_update_assistant_codeinterpreter', async (_event, arge) => {
+  const [assistant_id, code_interpreter] = [...arge]
+  const openai = new OpenAI(OpenAIParam)
+  const assistant = await openai.beta.assistants.retrieve(assistant_id)
+  let tools = assistant.tools
+  // 先删除代码解释器
+  tools = tools.filter((item) => {
+    return item.type != 'code_interpreter'
+  })
+  // 传入true则添加
+  if (code_interpreter) {
+    tools.push({ type: 'code_interpreter' })
+  }
+  await openai.beta.assistants.update(assistant_id, { tools: tools })
 })
 
 /**
@@ -83,6 +107,7 @@ async function SyncAssistants(
     apiKey: key,
     baseURL: url
   })
+
   // 清除远程助手 测试是打开情况助手
   // await ClearAllAssistant(openai)
   // 获取远程助手
@@ -130,9 +155,15 @@ async function CreateAssistantFormLoacl(
 ): Promise<System.Assistant | null> {
   try {
     const remote = LocalAssistantToRemoteAssistant(loaclassistant)
+    // 创建线程
+    const thread = await openai.beta.threads.create()
+    const id: string = thread['id'] as string
+    remote.metadata = { thread_id: id }
+
     // 创建助手
     const result = await openai.beta.assistants.create(remote)
     const assistant = AttachLoaclAssistant(loaclassistant, result)
+
     return assistant
   } catch (error) {
     return null
@@ -149,7 +180,7 @@ function LocalAssistantToRemoteAssistant(loacl: System.Assistant): AssistantCrea
     // Array<string> ids
     file_ids: [],
     instructions: loacl.AssistantBase.Prompt,
-    metadata: null,
+    metadata: loacl.AssistantBase.MetaData,
     name: loacl.AssistantBase.Name,
     tools: tools
   }
@@ -159,8 +190,11 @@ function LocalAssistantToRemoteAssistant(loacl: System.Assistant): AssistantCrea
 function AttachLoaclAssistant(local: System.Assistant, remote: Assistant): System.Assistant {
   local.AssistantBase.AssistantID = remote.id
   local.AssistantBase.CreateAt = remote.created_at
+  local.AssistantBase.MetaData = remote.metadata as object
   //关闭Disabled
   local.AssistantBase.Disabled = false
+  // 设置状态
+  local.AssistantBase.MessageState = 'None'
   return local
 }
 /**

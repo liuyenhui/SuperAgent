@@ -2,10 +2,12 @@
  * 订阅Store更新事件 更新数据内容,如SetingStore 更新Key 则初始化Assistants
  */
 import { SetingStore, KeyState, LockInit, UnLockInit } from './setingstore'
+
 import { AssistantsStore } from './assistantstore'
 import log from 'electron-log'
 import { Snackbar } from '@mui/joy'
 import { useEffect, useState } from 'react'
+import { UpdateSysinfo } from './systemstore'
 
 export function SubscribeStore(): JSX.Element {
   const [open, setOpen] = useState(false)
@@ -24,6 +26,9 @@ export function SubscribeStore(): JSX.Element {
             ? InitAssistentOpenAI(
                 (assistants) => {
                   UpdateAssistants(assistants)
+                  // 设置默认AssistantID
+                  const ids = Array.from(assistants.keys())
+                  UpdateSysinfo('AssistantID', ids[0])
                 },
                 (errmsg) => {
                   setErrormsg(errmsg)

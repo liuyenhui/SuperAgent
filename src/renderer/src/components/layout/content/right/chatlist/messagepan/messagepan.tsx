@@ -1,8 +1,14 @@
 import { Avatar, Box, Chip, Stack, Typography } from '@mui/joy'
-import { MessageType } from '../chatlist'
 import { AssistantsStore } from '@renderer/components/public/assistantstore'
+import moment from 'moment-timezone'
+// 设置当前主机时区为 缺省时区
+moment.tz.setDefault()
 
-function MessageContentUser(props: { msg: MessageType }): JSX.Element {
+function MessageContentUser(props: { msg: System.Message }): JSX.Element {
+  let outvalue = ''
+  if (props.msg.content[0].type == 'text') {
+    outvalue = props.msg.content[0].text.value
+  }
   return (
     <Stack
       direction="row"
@@ -23,7 +29,9 @@ function MessageContentUser(props: { msg: MessageType }): JSX.Element {
           <Typography level="body-sm" fontSize="12px" ml="12px">
             User
           </Typography>
-          <Typography fontSize="12px" level="body-sm">12月26日 AM 11:30</Typography>
+          <Typography fontSize="12px" level="body-sm">
+            {moment(props.msg.created_at * 1000).format('MM/DD A hh:mm')}
+          </Typography>
         </Stack>
         <Chip
           color="primary"
@@ -38,7 +46,7 @@ function MessageContentUser(props: { msg: MessageType }): JSX.Element {
         >
           <Box m="3px" p="3px">
             <Typography level="body-md" fontWeight="350" sx={{ whiteSpace: 'normal' }}>
-              {props.msg.content[0].text.value}
+              {outvalue}
             </Typography>
           </Box>
         </Chip>
@@ -47,7 +55,11 @@ function MessageContentUser(props: { msg: MessageType }): JSX.Element {
   )
 }
 
-function MessageContentAssistent(props: { msg: MessageType }): JSX.Element {
+function MessageContentAssistent(props: { msg: System.Message }): JSX.Element {
+  let outvalue = ''
+  if (props.msg.content[0].type == 'text') {
+    outvalue = props.msg.content[0].text.value
+  }
   const assistant = AssistantsStore.getState().Assistants.get(props.msg.assistant_id)
   return (
     <Stack
@@ -75,7 +87,7 @@ function MessageContentAssistent(props: { msg: MessageType }): JSX.Element {
             ChatGPT 3.5
           </Typography>
           <Typography level="body-sm" fontSize="12px" mr="12px">
-            12月26日 AM 11:30
+            {moment(props.msg.created_at * 1000).format('MM/DD A hh:mm')}
           </Typography>
         </Stack>
         <Chip
@@ -91,7 +103,7 @@ function MessageContentAssistent(props: { msg: MessageType }): JSX.Element {
         >
           <Box m="3px" p="3px">
             <Typography level="body-md" fontWeight="400" sx={{ whiteSpace: 'normal' }}>
-              {props.msg.content[0].text.value}
+              {outvalue}
             </Typography>
           </Box>
         </Chip>
@@ -100,7 +112,7 @@ function MessageContentAssistent(props: { msg: MessageType }): JSX.Element {
   )
 }
 
-export function MessagePan(props: { msg: MessageType }): JSX.Element {
+export function MessagePan(props: { msg: System.Message }): JSX.Element {
   const isuser = props.msg.role === 'user'
   return (
     <Box width="100%">

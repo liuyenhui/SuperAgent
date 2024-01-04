@@ -55,6 +55,8 @@ interface AssistantsStoreType {
   UpdateAssistants: (assistants: System.Assistants) => void
   // 修改 CodeInterpreter
   UpdateAssistantCodeInterpreter: (AssistantID: string) => void
+  // 修改 助手消息状态
+  UpdateAssistantMessageState: (AssistantID: string, State: System.SendMessageState) => void
   // 读取消息
   LoadMessages: (AssistantID: string) => void
   // 读取附加问件
@@ -81,13 +83,24 @@ export const AssistantsStore = create<AssistantsStoreType>()(
           ...state,
           Assistants: new Map<string, System.Assistant>(assistants)
         })),
+      // 代码解释器
       UpdateAssistantCodeInterpreter: (AssistantID: string): void =>
         set((state) => {
           const assistant = state.Assistants.get(AssistantID)
           assistant
             ? (assistant.AssistantBase.CodeInterpreter = !assistant.AssistantBase.CodeInterpreter)
             : null
-          // 存储
+          // 远程修改代码解释器
+          window.electron.ipcRenderer.invoke('invoke_update_assistant_codeinterpreter', [
+            AssistantID,
+            assistant?.AssistantBase.CodeInterpreter
+          ])
+        }),
+
+      UpdateAssistantMessageState: (AssistantID: string, State: System.SendMessageState): void =>
+        set((state) => {
+          const assistant = state.Assistants.get(AssistantID)
+          assistant ? (assistant.AssistantBase.MessageState = State) : null
         }),
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

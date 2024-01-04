@@ -27,5 +27,8 @@
     "baseurlplancehold":"https://api.openai.com/v1",
     "submit":"确定",
     "test":"测试连接"
+  },
+  "system":{
+    "lang":"zh-CN"
   }
 }

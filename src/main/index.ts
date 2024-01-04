@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import log from 'electron-log/main'
 import { MainIPC } from './ipc/assistantipc'
+import './ipc/threadmessage'
 
 import icon from '../../resources/icon.png?asset'
 

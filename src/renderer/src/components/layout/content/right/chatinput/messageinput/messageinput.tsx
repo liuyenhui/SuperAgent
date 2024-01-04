@@ -1,11 +1,11 @@
 import { SvgIcons, SvgPathMap } from '@renderer/components/public/SvgIcons'
 import { Box, Chip, Stack, Textarea, Typography } from '@mui/joy'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RIGHT_INPUT_HEIGHT } from '@renderer/components/public/constants'
 import { PostMessage } from '@renderer/components/public/systemstore'
-
-
+import { AssistantsStore } from '@renderer/components/public/assistantstore'
+import { InsertMessage } from '@renderer/components/public/messagestore'
 export default function MessageInput(props: {
   assistant: System.Assistant | undefined
 }): JSX.Element {
@@ -31,18 +31,60 @@ export default function MessageInput(props: {
         height: RIGHT_INPUT_HEIGHT
       }}
       // value={msg}
-      endDecorator={<BottomBar msg={value}></BottomBar>}
+      endDecorator={
+        <BottomBar
+          {...props}
+          msg={value}
+          thread_id={assistant?.AssistantBase.MetaData['thread_id']}
+          assistant_id={assistant?.AssistantBase.AssistantID}
+        ></BottomBar>
+      }
     />
   )
 }
-function BottomBar(props: { msg: string }): JSX.Element {
-
+function BottomBar(props: {
+  msg: string
+  thread_id: string
+  assistant_id: string | undefined
+}): JSX.Element {
   // 提交响应函数
   const submit = (): void => {
     console.log(props.msg)
-    PostMessage(props.msg)
+    // PostMessage(props.msg)
+    // open ai user message
+    const UpdateAssistantMessageState = AssistantsStore.getState().UpdateAssistantMessageState
+    if (props.assistant_id === undefined) {
+      PostMessage('not found assistant!')
+      return
+    }
+    UpdateAssistantMessageState(props.assistant_id, 'Send')
+    window.electron.ipcRenderer
+      .invoke('invoke_thread_message', {
+        thread_id: props.thread_id,
+        msg: props.msg,
+        assistant_id: props.assistant_id,
+        file_ids: []
+      })
+      .then((resultmessage) => {
+        console.log(resultmessage)
+      })
+      .catch((error) => {
+        PostMessage(error)
+      })
+      .finally(() => {
+        props.assistant_id ? UpdateAssistantMessageState(props.assistant_id, 'None') : null
+      })
   }
   const { t } = useTranslation()
+  // load did finish
+  useEffect(() => {
+    // open ai 返回用户创建的消息
+    window.electron.ipcRenderer.on('message_created_user', (_event, arge) => {
+      InsertMessage(props.assistant_id as string, arge as System.Message)
+
+      console.log(arge)
+    })
+  }, [])
   return (
     <Box
       sx={{

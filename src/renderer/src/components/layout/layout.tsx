@@ -59,7 +59,7 @@ export default function Layout(): JSX.Element {
 }
 function PopMessage(): JSX.Element {
   const pm = SystemInfoStore((store) => store.info.PopMessage)
-  console.log(pm)
+  // console.log(pm)
   // const [content, setContent] = useState('')
   // window.api.popmessage = (msg: string): void => {
   //   setContent(msg)
