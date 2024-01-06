@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 // import { SystemInfoStore } from '@renderer/components/public/systemstore'
 
 export default function Balance(): JSX.Element {
-  // const email = SystemInfoStore((state) => state.info.Email)
 
   const { t } = useTranslation()
   return (

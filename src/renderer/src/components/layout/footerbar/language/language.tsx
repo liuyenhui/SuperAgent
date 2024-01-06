@@ -6,7 +6,7 @@ import { SystemInfoStore, UpdateSysinfo } from '@renderer/components/public/syst
 import { useEffect } from 'react'
 
 export default function Language(): JSX.Element {
-  const language = SystemInfoStore((state) => state.info.Language) as string
+  const language = SystemInfoStore((state) => state.Language) as string
   useEffect(() => {
     i18n.changeLanguage(language)
   }, [])

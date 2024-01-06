@@ -112,7 +112,7 @@ export default function ChatList(): JSX.Element {
   console.log('debug')
   const listview = useRef<HTMLInputElement>(null)
 
-  const assistantid = SystemInfoStore((store) => store.info.AssistantID)
+  const assistantid = SystemInfoStore((store) => store.AssistantID)
   const thread = UseMessages(assistantid)
   useEffect(() => {
     // 刷新后滚动到底部
@@ -161,7 +161,6 @@ export default function ChatList(): JSX.Element {
           ?.reverse()
           .map((item) => <MessagePan key={item.id} msg={item}></MessagePan>)}
 
-        {/* {value=>value.Sysinfo.SystemData?.Email} */}
       </Sheet>
     </Stack>
   )

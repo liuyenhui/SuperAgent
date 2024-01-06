@@ -5,7 +5,7 @@ import { persist } from 'zustand/middleware'
  * System Store
  */
 
-interface SystemInfoType {
+interface SystemInfoStoreType {
   Email: string
   OpenAiToken: string
   AppVersion: string
@@ -17,7 +17,6 @@ interface SystemInfoType {
   LeftHidden: boolean
   Loading: boolean
   OpenAIConnected: boolean
-  OpenAIBaseURL: string
   OpenAIBalance: number
   // 全局提示消息
   PopMessage: {
@@ -30,7 +29,7 @@ interface SystemInfoType {
   }
 }
 
-const InfoData: SystemInfoType = {
+const InfoData: SystemInfoStoreType = {
   Email: 'liuyenhui@gamil.com',
   OpenAiToken: '',
   AppVersion: '',
@@ -41,7 +40,6 @@ const InfoData: SystemInfoType = {
   LeftHidden: false,
   Loading: true,
   OpenAIConnected: false,
-  OpenAIBaseURL: '',
   OpenAIBalance: 0,
   PopMessage: {
     Msg: '',
@@ -53,35 +51,19 @@ const InfoData: SystemInfoType = {
   }
 }
 
-interface SystemInfoStoreType {
-  info: SystemInfoType
-  // update: (name: string, value: string | number | boolean) => void
-}
-
 // 通过属性名,修改属性值
 export const SystemInfoStore = create<SystemInfoStoreType>()(
-  persist(() => ({ info: InfoData }), {
-    name: 'systeminfo'
-    // ,partialize: (state) => ({
-    //   ...state,
-    //   info: {
-    //     ...state.info,
-    //     PopMessage: {}
-    //   }
-    // })
-    // Object.fromEntries(
-    //   Object.entries(state.info.PopMessage).filter(([key]) => !['Open'].includes(key))
-    // )
+  persist(() => InfoData, {
+    name: 'systeminfo',
+    partialize: (state) =>
+      Object.fromEntries(Object.entries(state).filter(([key]) => !['PopMessage'].includes(key)))
   })
 )
 
 export const UpdateSysinfo = (name: string, value: unknown): void => {
   SystemInfoStore.setState((store) => ({
     ...store,
-    info: {
-      ...store.info,
-      [name]: value
-    }
+    [name]: value
   }))
 }
 export const PostMessage = (
@@ -94,16 +76,14 @@ export const PostMessage = (
 ): void => {
   SystemInfoStore.setState((store) => ({
     ...store,
-    info: {
-      ...store.info,
-      PopMessage: {
-        Msg: Msg,
-        Open: Open,
-        Color: Color,
-        Variant: Variant,
-        Vertical: Vertical,
-        Horizontal: Horizontal
-      }
+
+    PopMessage: {
+      Msg: Msg,
+      Open: Open,
+      Color: Color,
+      Variant: Variant,
+      Vertical: Vertical,
+      Horizontal: Horizontal
     }
   }))
 }
@@ -111,23 +91,9 @@ export const PostMessage = (
 export const CloseMessage = (): void => {
   SystemInfoStore.setState((store) => ({
     ...store,
-    info: {
-      ...store.info,
-      PopMessage: {
-        ...store.info.PopMessage,
-        Open: false
-      }
+    PopMessage: {
+      ...store.PopMessage,
+      Open: false
     }
   }))
 }
-// update: async (name, value): Promise<void> =>
-//         set((state) => {
-//           // InfoData[name] = value 以下代码 [name]:value 替代
-//           return {
-//             // info:InfoData 无效    展开的目的是复制Info 触发改变
-//             info: {
-//               ...state.info,
-//               [name]: value
-//             }
-//           }
-//         })

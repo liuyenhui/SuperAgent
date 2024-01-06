@@ -22,7 +22,7 @@ interface ChatPropType {
 }
 // 侧边栏隐藏
 function PopListView(): JSX.Element {
-  const lefthidden = SystemInfoStore((state) => state.info.LeftHidden)
+  const lefthidden = SystemInfoStore((state) => state.LeftHidden)
   const onClick = (): void => {
     UpdateSysinfo('LeftHidden', !lefthidden)
   }
@@ -100,7 +100,7 @@ function AssistantDescrib(props: ChatPropType): JSX.Element {
 }
 
 export default function ChatHead(): JSX.Element {
-  const assistantid = SystemInfoStore((state) => state.info.AssistantID)
+  const assistantid = SystemInfoStore((state) => state.AssistantID)
   log.info(assistantid)
   const assistant = AssistantsStore.getState().Assistants.get(assistantid)
   log.info(`ChatHead getassistant id:${assistantid} name:${assistant?.AssistantBase.Name}`)

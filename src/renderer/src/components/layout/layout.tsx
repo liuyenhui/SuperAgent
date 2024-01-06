@@ -58,7 +58,7 @@ export default function Layout(): JSX.Element {
   )
 }
 function PopMessage(): JSX.Element {
-  const pm = SystemInfoStore((store) => store.info.PopMessage)
+  const pm = SystemInfoStore((store) => store.PopMessage)
 
   return (
     <Snackbar

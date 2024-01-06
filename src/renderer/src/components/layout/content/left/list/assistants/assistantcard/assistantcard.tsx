@@ -21,7 +21,7 @@ export function AssistantCard(props: AssistantProp): JSX.Element {
 
   // 更新当前使用的助手ID的函数
   // 获取正在使用的助手ID
-  const selectassistantid = SystemInfoStore((state) => state.info.AssistantID)
+  const selectassistantid = SystemInfoStore((state) => state.AssistantID)
   log.info(assistant?.AssistantBase.ImagePath)
 
   const onClick = (event: unknown): void => {
