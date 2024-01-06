@@ -10,6 +10,7 @@ import { AssistantsLoad, AssistantsSave } from '../assistantsload'
 import log from 'electron-log'
 import { OpenAI } from 'openai'
 import { AssistantCreateParams, Assistant } from 'openai/resources/beta/assistants/assistants'
+import { MessageListParams } from 'openai/resources/beta/threads/messages/messages'
 type MainIPCType = {
   app: Electron.App
   mainWindow: Electron.BrowserWindow
@@ -90,6 +91,16 @@ ipcMain.handle('invoke_update_assistant_codeinterpreter', async (_event, arge) =
   }
   await openai.beta.assistants.update(assistant_id, { tools: tools })
 })
+// arge - { thread_id , before_message_id}
+ipcMain.handle('invoke_thread_message_list', async (_event, arge) => {
+  const { thread_id, before_message_id } = arge
+  try {
+    const messages = await SyncThreadMessages(thread_id, before_message_id)
+    return Promise.resolve(messages)
+  } catch (error) {
+    return Promise.reject(error)
+  }
+})
 
 /**
  * 同步远程助手
@@ -103,10 +114,9 @@ async function SyncAssistants(
   url: string,
   assistants: System.Assistants
 ): Promise<System.Assistants> {
-  const openai = new OpenAI({
-    apiKey: key,
-    baseURL: url
-  })
+  OpenAIParam.apiKey = key
+  OpenAIParam.baseURL = url
+  const openai = new OpenAI(OpenAIParam)
 
   // 清除远程助手 测试是打开情况助手
   // await ClearAllAssistant(openai)
@@ -141,7 +151,21 @@ async function SyncAssistants(
     throw new Error(errmsg)
     //error 会直接break 出函数
   }
+  // 添加助手消息
   return newassistants
+}
+async function SyncThreadMessages(
+  thread_id: string,
+  before_message_id: string
+): Promise<System.ThreadType> {
+  const openai = new OpenAI(OpenAIParam)
+  const thread: System.ThreadType = { thread_id: thread_id, messages: [] }
+  const listparam: MessageListParams = { order: 'desc', limit: 100, before: before_message_id }
+
+  const messages = await openai.beta.threads.messages.list(thread_id, listparam)
+  thread.messages = messages.data
+  // messagestore.threads.push({ thread_id: thread_id, messages: messages.data })
+  return thread
 }
 /**
  *

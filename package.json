@@ -58,6 +58,7 @@
     "react-i18next": "^13.5.0",
     "superjson": "^2.2.1",
     "typescript": "^5.1.6",
+    "uuid": "^9.0.1",
     "vite": "^4.4.9",
     "zustand": "^4.4.7"
   }

@@ -53,14 +53,15 @@ declare namespace System {
     object: string
     created_at: number
     thread_id: string
-    role: 'user' | 'assistants'
+    role: 'user' | 'assistant'
     content: Array<ImageFile | Text>
-    assistant_id: string
-    run_id: string
+    assistant_id: string | null
+    run_id: string | null
     // 附加的文件IDs 最多10个
     file_ids: Array<string>
     // 保存使用线程ID  'thread_id':'thread_abc123' 通过线程ID list messages
-    metadata: object
+    // MessageState: 'UserSend', LocalID: msglocalid
+    metadata: object | unknown
   }
   // 消息附加的文件ID
   interface MessageFile {
@@ -88,7 +89,13 @@ declare namespace System {
     Messages: Array<Message>
   }
 
-  type SendMessageState = 'None' | 'UploadFile' | 'Send'
+  type SendMessageState =
+    | 'None'
+    | 'UploadFile'
+    | 'UserSend'
+    | 'UserSendResult'
+    | 'WaitAssistant'
+    | 'AssistantResult'
 
   // 助手的基本信息,包含模型类型,助手名称等
   interface AssistantBase {
@@ -113,7 +120,7 @@ declare namespace System {
     CodeInterpreter: boolean
     // 可用状态,remote 未验证时为true,当invoke_init_assistants创建后返回false表示当前可用
     Disabled: boolean
-    // metadata 附加信息
+    // metadata 附加信息 { thread_id: id }
     MetaData: object
     // 消息状态 None 可发送, UploadFile 正在上传文件, Send,正在发送消息
     MessageState: SendMessageState
@@ -131,6 +138,15 @@ declare namespace System {
    * 暂时不开发!
    * (目前主要思路是利用Assistants 的Function 回调DELL-E,提示词中通知助手主要功能是绘画,用户要求时回调绘图API)
    */
+  // 线程 包含线程消息
+  interface ThreadType {
+    thread_id: string
+    messages: System.Message[]
+  }
+  // 消息存储(主进程使用,在此定义)
+  interface MessageStoreType {
+    threads: ThreadType[]
+  }
 
   interface ImageBase {
     [prop: string]: string | number

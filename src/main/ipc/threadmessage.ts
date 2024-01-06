@@ -6,7 +6,6 @@ import { OpenAI } from 'openai'
 import log from 'electron-log'
 import { OpenAIParam, MainIPC } from './assistantipc'
 
-
 ipcMain.handle('invoke_thread_message', async (_event, arge) => {
   const { thread_id, assistant_id, msg, file_ids } = arge
   const openai = new OpenAI(OpenAIParam)

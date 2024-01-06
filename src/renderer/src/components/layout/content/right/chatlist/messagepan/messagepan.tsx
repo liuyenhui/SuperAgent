@@ -60,6 +60,10 @@ function MessageContentAssistent(props: { msg: System.Message }): JSX.Element {
   if (props.msg.content[0].type == 'text') {
     outvalue = props.msg.content[0].text.value
   }
+  if (!props.msg.assistant_id) {
+    postMessage('MessageContentAssistent props msg assistant_id is null')
+    return <></>
+  }
   const assistant = AssistantsStore.getState().Assistants.get(props.msg.assistant_id)
   return (
     <Stack

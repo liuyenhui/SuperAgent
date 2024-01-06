@@ -8,6 +8,7 @@ import log from 'electron-log'
 import { Snackbar } from '@mui/joy'
 import { useEffect, useState } from 'react'
 import { UpdateSysinfo } from './systemstore'
+import { InsertThread } from './messagestore'
 
 export function SubscribeStore(): JSX.Element {
   const [open, setOpen] = useState(false)
@@ -36,6 +37,8 @@ export function SubscribeStore(): JSX.Element {
                 }
               )
             : null
+
+          MessageInit()
         }
         if (value == KeyState.None) console.log(`set key error`)
       }
@@ -84,6 +87,26 @@ function InitAssistentOpenAI(
   } catch (error) {
     log.info(error)
   }
+}
+
+function MessageInit(): void {
+  const assistants = AssistantsStore.getState().Assistants
+  assistants.forEach((assistant) => {
+    const thread_id = assistant.AssistantBase.MetaData['thread_id']
+    window.electron.ipcRenderer
+      .invoke('invoke_thread_message_list', {
+        thread_id: thread_id,
+        before_message_id: undefined
+      })
+      .then((messages) => {
+        // 插入线程
+        InsertThread(thread_id, messages)
+      })
+      .catch((error) => {
+        // PostMessage(error)
+        console.log(error)
+      })
+  })
 }
 
 // function Respone(assisstants): void {
