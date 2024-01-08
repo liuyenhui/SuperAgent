@@ -60,7 +60,7 @@ declare namespace System {
     // 附加的文件IDs 最多10个
     file_ids: Array<string>
     // 保存使用线程ID  'thread_id':'thread_abc123' 通过线程ID list messages
-    // MessageState: 'UserSend', LocalID: msglocalid
+    // MessageState: 'None' 'UploadFile' 'UserSend' 'UserSendResult' 'WaitRun' 'RunResult', LocalID: msglocalid
     metadata: object | unknown
   }
   // 消息附加的文件ID
@@ -94,8 +94,8 @@ declare namespace System {
     | 'UploadFile'
     | 'UserSend'
     | 'UserSendResult'
-    | 'WaitAssistant'
-    | 'AssistantResult'
+    | 'WaitRun'
+    | 'RunResult'
 
   // 助手的基本信息,包含模型类型,助手名称等
   interface AssistantBase {

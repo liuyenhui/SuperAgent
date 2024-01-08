@@ -25,21 +25,17 @@ export const InsertMessage = (thread_id: string, message: System.Message): void 
         : thread
     })
   }))
-export const ReplaceMessage = (
-  thread_id: string,
-  localId: string,
-  newMessage: System.Message
-): void =>
+export const ReplaceMessage = (thread_id: string, newMessage: System.Message): void =>
   MessageStore.setState((store) => ({
     ...store,
     threads: store.threads.map((thread) => {
       return thread.thread_id === thread_id
         ? ({
             ...thread,
-            // ID 相同则替换消息,(open ai 返回消息后替换)
+            // metadata Loaclid 与 msg.id 相同则替换消息,(open ai 返回消息后替换)
             messages: [
               ...thread.messages.map((msg) =>
-                (msg.metadata as object)['LocalID'] == localId ? newMessage : msg
+                (msg.metadata as object)['LocalID'] == msg.id ? newMessage : msg
               )
             ].sort((a, b) => b.created_at - a.created_at)
           } as never)
@@ -57,9 +53,9 @@ export const InsertThread = (thread_id: string, message: System.Message[]): void
     ]
   }))
 // 获取线程消息
-export const UseMessages = (thread_id: string): System.ThreadType => {
+export const UseMessages = (thread_id: string): System.Message[] => {
   return MessageStore(
-    (store) => store.threads.filter((thread) => thread.thread_id === thread_id)[0]
+    (store) => store.threads.filter((thread) => thread.thread_id === thread_id)[0]?.messages
   )
 }
 

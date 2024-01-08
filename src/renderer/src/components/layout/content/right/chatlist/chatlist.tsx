@@ -4,6 +4,7 @@ import { MessagePan } from './messagepan/messagepan'
 import { SystemInfoStore } from '@renderer/components/public/systemstore'
 import { UseMessages } from '@renderer/components/public/messagestore'
 import { useEffect, useRef } from 'react'
+import { AssistantsStore } from '@renderer/components/public/assistantstore'
 
 // export interface MessageType {
 //   id: string
@@ -113,7 +114,12 @@ export default function ChatList(): JSX.Element {
   const listview = useRef<HTMLInputElement>(null)
 
   const assistantid = SystemInfoStore((store) => store.AssistantID)
-  const thread = UseMessages(assistantid)
+  const thread_id =
+    AssistantsStore.getState().Assistants.get(assistantid)?.AssistantBase.MetaData['thread_id']
+  const messages = UseMessages(thread_id)
+  console.log(messages)
+  // const threads = MessageStore(state=>state.threads)
+  // const thread = threads.filter(thread=>thread.thread_id==)
   useEffect(() => {
     // 刷新后滚动到底部
     if (listview.current && listview.current.scrollTo)
@@ -137,7 +143,7 @@ export default function ChatList(): JSX.Element {
         sx={{
           display: 'flex',
           flexDirection: 'column-reverse',
-          // overflow: 'scroll',
+          width: '100%',
           overflowY: 'scroll', //'auto',
           pb: '0px',
           height: '100%',
@@ -157,10 +163,7 @@ export default function ChatList(): JSX.Element {
           }
         }}
       >
-        {thread?.messages
-          ?.reverse()
-          .map((item) => <MessagePan key={item.id} msg={item}></MessagePan>)}
-
+        {messages?.map((item) => <MessagePan key={item.id} msg={item}></MessagePan>)}
       </Sheet>
     </Stack>
   )

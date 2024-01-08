@@ -1,5 +1,6 @@
-import { Avatar, Box, Chip, Stack, Typography } from '@mui/joy'
+import { Avatar, Box, Chip, LinearProgress, Skeleton, Stack, Typography } from '@mui/joy'
 import { AssistantsStore } from '@renderer/components/public/assistantstore'
+import { GetModelName } from '@renderer/components/public/setingstore'
 import moment from 'moment-timezone'
 // 设置当前主机时区为 缺省时区
 moment.tz.setDefault()
@@ -8,6 +9,19 @@ function MessageContentUser(props: { msg: System.Message }): JSX.Element {
   let outvalue = ''
   if (props.msg.content[0].type == 'text') {
     outvalue = props.msg.content[0].text.value
+  }
+  const messagestate = (props.msg.metadata as object)['MessageState']
+  let color = 'warning'
+  switch (messagestate) {
+    case 'UserSend':
+      color = 'warning'
+      break
+    case 'UserSendResult':
+      color = 'primary'
+      break
+    default:
+      color = 'warning'
+      break
   }
   return (
     <Stack
@@ -34,10 +48,7 @@ function MessageContentUser(props: { msg: System.Message }): JSX.Element {
           </Typography>
         </Stack>
         <Chip
-          color="primary"
-          onClick={function () {
-            null
-          }}
+          color={color as never}
           variant="solid"
           sx={{
             borderTopRightRadius: 0,
@@ -65,6 +76,7 @@ function MessageContentAssistent(props: { msg: System.Message }): JSX.Element {
     return <></>
   }
   const assistant = AssistantsStore.getState().Assistants.get(props.msg.assistant_id)
+  const modelname = assistant ? GetModelName(assistant.AssistantBase.Model) : ''
   return (
     <Stack
       direction="row"
@@ -88,7 +100,7 @@ function MessageContentAssistent(props: { msg: System.Message }): JSX.Element {
           paddingRight="5px"
         >
           <Typography level="body-sm" fontSize="12px">
-            ChatGPT 3.5
+            {modelname}
           </Typography>
           <Typography level="body-sm" fontSize="12px" mr="12px">
             {moment(props.msg.created_at * 1000).format('MM/DD A hh:mm')}
@@ -106,9 +118,11 @@ function MessageContentAssistent(props: { msg: System.Message }): JSX.Element {
           }}
         >
           <Box m="3px" p="3px">
-            <Typography level="body-md" fontWeight="400" sx={{ whiteSpace: 'normal' }}>
-              {outvalue}
-            </Typography>
+              <Typography level="body-md" fontWeight="400" sx={{ whiteSpace: 'normal' }}>
+
+                {outvalue}
+                <LinearProgress />
+              </Typography>
           </Box>
         </Chip>
       </Stack>

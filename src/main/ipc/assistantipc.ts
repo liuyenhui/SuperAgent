@@ -46,7 +46,7 @@ ipcMain.handle('invoke_openurl', (_event, arge) => {
 // 测试API KEY
 ipcMain.handle('test_openai_key', async (_event, arge) => {
   const { key, url } = arge
-  log.info(`apikey:${arge[0]} baseurl:${arge[1]}`)
+  log.info(`apikey:${key} baseurl:${url}`)
   const openai = new OpenAI({
     apiKey: key,
     baseURL: url,
@@ -93,7 +93,7 @@ ipcMain.handle('invoke_update_assistant_codeinterpreter', async (_event, arge) =
 })
 // arge - { thread_id , before_message_id}
 ipcMain.handle('invoke_thread_message_list', async (_event, arge) => {
-  const { thread_id, before_message_id } = arge
+  const { thread_id, before_message_id = undefined } = arge
   try {
     const messages = await SyncThreadMessages(thread_id, before_message_id)
     return Promise.resolve(messages)
@@ -158,14 +158,19 @@ async function SyncThreadMessages(
   thread_id: string,
   before_message_id: string
 ): Promise<System.ThreadType> {
-  const openai = new OpenAI(OpenAIParam)
-  const thread: System.ThreadType = { thread_id: thread_id, messages: [] }
-  const listparam: MessageListParams = { order: 'desc', limit: 100, before: before_message_id }
+  const threadmessage: System.ThreadType = { thread_id: thread_id, messages: [] }
 
+  const openai = new OpenAI(OpenAIParam)
+  const thread = await openai.beta.threads.retrieve(thread_id)
+  if (!thread) {
+    return threadmessage
+  }
+  const listparam: MessageListParams = { order: 'desc', limit: 100 }
+  log.info(`list message ${thread_id} before ${before_message_id}`)
   const messages = await openai.beta.threads.messages.list(thread_id, listparam)
-  thread.messages = messages.data
+  threadmessage.messages = messages.data
   // messagestore.threads.push({ thread_id: thread_id, messages: messages.data })
-  return thread
+  return threadmessage
 }
 /**
  *

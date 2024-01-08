@@ -22,23 +22,24 @@ export function SubscribeStore(): JSX.Element {
       (value, prev) => {
         // 设置api key成功,设置代理 // 锁住初始化,防止多少渲染调用
 
-        if (value == KeyState.Setkey && prev == KeyState.None) {
-          LockInit()
-            ? InitAssistentOpenAI(
-                (assistants) => {
-                  UpdateAssistants(assistants)
-                  // 设置默认AssistantID
-                  const ids = Array.from(assistants.keys())
-                  UpdateSysinfo('AssistantID', ids[0])
-                },
-                (errmsg) => {
-                  setErrormsg(errmsg)
-                  setOpen(true)
-                }
-              )
-            : null
+        if (value == KeyState.Setkey && prev == KeyState.None && LockInit()) {
+          InitAssistentOpenAI()
+            .then((assistants) => {
+              UpdateAssistants(assistants)
+              // 设置默认AssistantID
+              const ids = Array.from(assistants.keys())
+              UpdateSysinfo('AssistantID', ids[0])
+            })
+            .then(() => {
+              // 初始化消息
+              MessageInit()
+            })
+            .catch((errmsg) => {
+              setErrormsg(errmsg)
+              setOpen(true)
+            })
 
-          MessageInit()
+          //
         }
         if (value == KeyState.None) console.log(`set key error`)
       }
@@ -59,34 +60,28 @@ export function SubscribeStore(): JSX.Element {
   )
 }
 // 在OpenAI服务器创建助理
-function InitAssistentOpenAI(
-  successcallback: (assistants: System.Assistants) => void,
-  errorcallback: (errormsg: string) => void
-): void {
+function InitAssistentOpenAI(): Promise<System.Assistants> {
   const keypackage = {
     key: SetingStore.getState().OpenAiAPIKey,
     url: SetingStore.getState().BaseURL,
     assistants: AssistantsStore.getState().Assistants
   }
-  try {
-    window.electron.ipcRenderer
-      .invoke('invoke_init_assistants', keypackage)
-      .then((assistants) => {
-        // 成功创建助手,合并store
-        console.log(assistants)
-        successcallback(assistants)
-      })
-      .catch((error) => {
-        const msg = `InitAssistantOpenAI error:${error}`
-        log.info(msg)
-        errorcallback(msg)
-      })
-      .finally(() => {
-        UnLockInit()
-      })
-  } catch (error) {
-    log.info(error)
-  }
+
+  return window.electron.ipcRenderer
+    .invoke('invoke_init_assistants', keypackage)
+    .then((assistants) => {
+      // 成功创建助手,合并store
+      console.log(assistants)
+      return Promise.resolve(assistants)
+    })
+    .catch((error) => {
+      const msg = `InitAssistantOpenAI error:${error}`
+      log.info(msg)
+      return Promise.reject(msg)
+    })
+    .finally(() => {
+      UnLockInit()
+    })
 }
 
 function MessageInit(): void {
@@ -98,9 +93,9 @@ function MessageInit(): void {
         thread_id: thread_id,
         before_message_id: undefined
       })
-      .then((messages) => {
+      .then((thread: System.ThreadType) => {
         // 插入线程
-        InsertThread(thread_id, messages)
+        InsertThread(thread.thread_id, thread.messages)
       })
       .catch((error) => {
         // PostMessage(error)

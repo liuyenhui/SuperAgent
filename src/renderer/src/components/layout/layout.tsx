@@ -2,7 +2,7 @@ import Box from '@mui/joy/Box'
 import { LinearProgress, Snackbar, Stack } from '@mui/joy'
 import FooterBar from './footerbar/footerbar'
 import Content from './content/content'
-import { SetingStore, SetAppState, KeyState } from '@renderer/components/public/setingstore'
+import { SetingStore, SetAppState, KeyState, SetModels } from '@renderer/components/public/setingstore'
 import { SetOpenAiAPIKeyDialog } from './setopenaiapikey'
 import { SubscribeStore } from '../public/SubscribeStore'
 import { useEffect, useState } from 'react'
@@ -20,7 +20,8 @@ export default function Layout(): JSX.Element {
     setLoading(true)
     window.electron.ipcRenderer
       .invoke('test_openai_key', { key: key, url: baseurl })
-      .then(() => {
+      .then((models) => {
+        SetModels(models)
         SetAppState(KeyState.Setkey)
       })
       .catch((error) => {

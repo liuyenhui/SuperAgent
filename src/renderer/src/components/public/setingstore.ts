@@ -91,6 +91,13 @@ export const SetModels = (models: object): void => {
   }))
 }
 
+export const GetModelName = (id: string): string | undefined => {
+  const name = SetingStore.getState().SetingModel.find((value) => {
+    return value.id == id
+  })?.name
+  return name
+}
+
 export const LockInit = (): boolean => {
   if (SetingStore.getState().LockInitAssistants) return false
   SetingStore.setState((store) => ({

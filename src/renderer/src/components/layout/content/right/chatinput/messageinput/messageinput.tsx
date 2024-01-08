@@ -17,7 +17,6 @@ export default function MessageInput(props: {
 }): JSX.Element {
   const assistant = props.assistant
   const [value, setValue] = useState('')
-
   return (
     <Textarea
       placeholder={`Hi i\`m ${assistant?.AssistantBase.Name},Do you have any questions?`}
@@ -25,6 +24,7 @@ export default function MessageInput(props: {
       disabled={assistant == undefined || assistant.AssistantBase.Disabled}
       minRows={3}
       maxRows={3}
+      value={value}
       // 监听事件同步更改value状态
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={(event) => {
@@ -40,6 +40,7 @@ export default function MessageInput(props: {
       endDecorator={
         <BottomBar
           {...props}
+          setvalue={setValue}
           msg={value}
           thread_id={assistant?.AssistantBase.MetaData['thread_id']}
           assistant_id={assistant?.AssistantBase.AssistantID}
@@ -52,6 +53,7 @@ function BottomBar(props: {
   msg: string
   thread_id: string
   assistant_id: string | undefined
+  setvalue: (value: string) => void
 }): JSX.Element {
   let msglocalid: string = ''
   // 提交响应函数
@@ -64,6 +66,7 @@ function BottomBar(props: {
       PostMessage('not found assistant!')
       return
     }
+    props.setvalue('')
     // 更新助手发送消息状态
     UpdateAssistantMessageState(props.assistant_id, 'UserSend')
     msglocalid = uuidv4()
@@ -88,14 +91,14 @@ function BottomBar(props: {
       // 记录状态,与本地临时ID
       metadata: { MessageState: 'UserSend', LocalID: msglocalid }
     }
-    // 插入用户临时消息等待返回,Assistant返回后更新
+    // 插入用户临时消息等待返回,invoke_thread_message_create返回后更新
     InsertMessage(props.thread_id, message)
     const threads = MessageStore.getState().threads
     console.log(threads)
     window.electron.ipcRenderer
-      .invoke('invoke_thread_message', {
+      .invoke('invoke_thread_message_create', {
         thread_id: props.thread_id,
-        msg: props.msg,
+        msg: message,
         assistant_id: props.assistant_id,
         file_ids: []
       })
@@ -115,8 +118,15 @@ function BottomBar(props: {
     // open ai 返回用户创建的消息
     window.electron.ipcRenderer.on('message_created_user', (_event, arge) => {
       // arge 返回消息
-      ReplaceMessage(props.thread_id, msglocalid, arge)
+      ReplaceMessage(props.thread_id, arge)
 
+      console.log(arge)
+    })
+    // 助手消息创建,此时创建run,等待run完成
+    window.electron.ipcRenderer.on('message_created_assistant', (_event, arge) => {
+      const message = arge as System.Message
+      // arge 返回消息
+      InsertMessage(message.thread_id, message)
       console.log(arge)
     })
   }, [])
