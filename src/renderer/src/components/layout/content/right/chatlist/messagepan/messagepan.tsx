@@ -1,6 +1,7 @@
-import { Avatar, Box, Chip, LinearProgress, Skeleton, Stack, Typography } from '@mui/joy'
+import { Avatar, Box, Chip, Stack, Typography } from '@mui/joy'
+import { AnimationText } from '@renderer/components/public/AnimationText'
 import { AssistantsStore } from '@renderer/components/public/assistantstore'
-import { GetModelName } from '@renderer/components/public/setingstore'
+import { PostMessage } from '@renderer/components/public/systemstore'
 import moment from 'moment-timezone'
 // 设置当前主机时区为 缺省时区
 moment.tz.setDefault()
@@ -72,11 +73,12 @@ function MessageContentAssistent(props: { msg: System.Message }): JSX.Element {
     outvalue = props.msg.content[0].text.value
   }
   if (!props.msg.assistant_id) {
-    postMessage('MessageContentAssistent props msg assistant_id is null')
+    PostMessage('MessageContentAssistent props msg assistant_id is null')
     return <></>
   }
-  const assistant = AssistantsStore.getState().Assistants.get(props.msg.assistant_id)
-  const modelname = assistant ? GetModelName(assistant.AssistantBase.Model) : ''
+  const assistant = AssistantsStore((state) =>
+    state.Assistants.get(props.msg.assistant_id as string)
+  )
   return (
     <Stack
       direction="row"
@@ -99,8 +101,8 @@ function MessageContentAssistent(props: { msg: System.Message }): JSX.Element {
           alignItems="flex-end"
           paddingRight="5px"
         >
-          <Typography level="body-sm" fontSize="12px">
-            {modelname}
+          <Typography level="body-sm" fontSize="12px" ml={'5px'}>
+            {assistant?.AssistantBase.Name}
           </Typography>
           <Typography level="body-sm" fontSize="12px" mr="12px">
             {moment(props.msg.created_at * 1000).format('MM/DD A hh:mm')}
@@ -118,11 +120,15 @@ function MessageContentAssistent(props: { msg: System.Message }): JSX.Element {
           }}
         >
           <Box m="3px" p="3px">
+            {(props.msg.metadata as object)['MessageState'] === 'WaitRun' ? (
               <Typography level="body-md" fontWeight="400" sx={{ whiteSpace: 'normal' }}>
-
-                {outvalue}
-                <LinearProgress />
+                <AnimationText text={outvalue} stop={false} loop={true}></AnimationText>
               </Typography>
+            ) : (
+              <Typography level="body-md" fontWeight="400" sx={{ whiteSpace: 'normal' }}>
+                {outvalue}
+              </Typography>
+            )}
           </Box>
         </Chip>
       </Stack>

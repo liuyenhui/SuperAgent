@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RIGHT_INPUT_HEIGHT } from '@renderer/components/public/constants'
 import { PostMessage } from '@renderer/components/public/systemstore'
-import { AssistantsStore } from '@renderer/components/public/assistantstore'
+import { UpdateAssistantMessageState } from '@renderer/components/public/assistantstore'
 import {
   InsertMessage,
   MessageStore,
@@ -61,7 +61,6 @@ function BottomBar(props: {
     console.log(props.msg)
     // PostMessage(props.msg)
     // open ai user message
-    const UpdateAssistantMessageState = AssistantsStore.getState().UpdateAssistantMessageState
     if (props.assistant_id === undefined) {
       PostMessage('not found assistant!')
       return
@@ -119,7 +118,6 @@ function BottomBar(props: {
     window.electron.ipcRenderer.on('message_created_user', (_event, arge) => {
       // arge 返回消息
       ReplaceMessage(props.thread_id, arge)
-
       console.log(arge)
     })
     // 助手消息创建,此时创建run,等待run完成
@@ -127,6 +125,13 @@ function BottomBar(props: {
       const message = arge as System.Message
       // arge 返回消息
       InsertMessage(message.thread_id, message)
+      console.log(arge)
+    })
+    // 助手消息返回,此时run状态completed
+    window.electron.ipcRenderer.on('message_result_assistant', (_event, arge) => {
+      const message = arge as System.Message
+      // arge 返回消息
+      ReplaceMessage(message.thread_id, message)
       console.log(arge)
     })
   }, [])

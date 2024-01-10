@@ -7,19 +7,19 @@ import {
   IconButton,
   Sheet,
   Stack,
-  Tooltip,
-  Typography
+  Tooltip
 } from '@mui/joy'
 import { RIGHT_HEAD_HEIGHT } from '@renderer/components/public/constants'
 import { SvgPathMap, SvgIcons } from '@renderer/components/public/SvgIcons'
 import { SystemInfoStore, UpdateSysinfo } from '@renderer/components/public/systemstore'
-import { AssistantsStore } from '@renderer/components/public/assistantstore'
+import {
+  AssistantsStore,
+  UpdateAssistantCodeInterpreter
+} from '@renderer/components/public/assistantstore'
 import { CludeFiles } from './cludefiles/cludefiles'
 import { Functions } from './functions/function'
 import log from 'electron-log'
-interface ChatPropType {
-  assistant: System.Assistant
-}
+import { AssistantDescrib, ChatPropType } from './assistantdescrib/assistantdisplay'
 // 侧边栏隐藏
 function PopListView(): JSX.Element {
   const lefthidden = SystemInfoStore((state) => state.LeftHidden)
@@ -48,9 +48,6 @@ function PopListView(): JSX.Element {
 // 头像
 function AvatarImage(props: ChatPropType): JSX.Element {
   const assistants = AssistantsStore((state) => state.Assistants) //props.assistant
-  const UpdateAssistantCodeInterpreter = AssistantsStore(
-    (state) => state.UpdateAssistantCodeInterpreter
-  )
   // 获取Store中的 assistant
   const assistant = assistants.get(props.assistant?.AssistantBase.AssistantID)
   // 获取代码解释器开关状态
@@ -78,31 +75,11 @@ function AvatarImage(props: ChatPropType): JSX.Element {
     </Stack>
   )
 }
-// 名称及提示词
-function AssistantDescrib(props: ChatPropType): JSX.Element {
-  const { assistant } = props
-
-  return (
-    <Grid sx={{ userSelect: 'none' }}>
-      <Typography level="title-md" id="card-description">
-        {assistant?.AssistantBase.Name}
-      </Typography>
-      <Typography
-        noWrap
-        level="body-sm"
-        aria-describedby="card-description"
-        // sx={{ textOverflow: 'ellipsis' }}
-      >
-        {assistant?.AssistantBase.Prompt}
-      </Typography>
-    </Grid>
-  )
-}
 
 export default function ChatHead(): JSX.Element {
   const assistantid = SystemInfoStore((state) => state.AssistantID)
   log.info(assistantid)
-  const assistant = AssistantsStore.getState().Assistants.get(assistantid)
+  const assistant = AssistantsStore((state) => state.Assistants.get(assistantid))
   log.info(`ChatHead getassistant id:${assistantid} name:${assistant?.AssistantBase.Name}`)
   return (
     <Sheet

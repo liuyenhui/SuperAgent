@@ -6,7 +6,9 @@ import { OpenAI } from 'openai'
 import log from 'electron-log'
 import { OpenAIParam, MainIPC } from './assistantipc'
 import { v4 as uuidv4 } from 'uuid'
-import { ThreadMessage } from 'openai/resources/beta/threads/messages/messages'
+import { MessageListParams, ThreadMessage } from 'openai/resources/beta/threads/messages/messages'
+import { sleep } from 'openai/core'
+import { Run } from 'openai/resources/beta/threads/runs/runs'
 
 ipcMain.handle('invoke_thread_message_create', async (_event, arge) => {
   const { thread_id, assistant_id, msg, file_ids } = arge
@@ -26,33 +28,67 @@ ipcMain.handle('invoke_thread_message_create', async (_event, arge) => {
       file_ids: file_ids,
       metadata: message.metadata
     })
-
+    result.assistant_id = assistant_id
     // 发送完成创建消息
-    MainIPC.mainWindow.webContents.send('message_created_user', result)
+    MainIPC.mainWindow.webContents.postMessage('message_created_user', result)
     log.info(
       `create message return ${result} thread_id:${thread_id} msg:${msg} file_ids:${file_ids}`
     )
     // 创建run
-    // const run = openai.beta.threads.runs.create(thread_id, { assistant_id: assistant_id })
-    const id = uuidv4()
+    const run = await openai.beta.threads.runs.create(thread_id, { assistant_id: assistant_id })
+
+    const local_id = uuidv4()
     const assistantmessage: ThreadMessage = {
-      id: id,
+      id: local_id,
       assistant_id: assistant_id,
       role: 'assistant',
       content: [{ type: 'text', text: { value: '...', annotations: [] } }],
       created_at: Date.now(),
       file_ids: [],
       object: 'thread.message',
-      run_id: null,
+      run_id: run.id,
       thread_id: thread_id,
-      metadata: { MessageState: 'WaitRun', LocalID: id }
+      metadata: { MessageState: 'WaitRun', LocalID: local_id }
     }
-    MainIPC.mainWindow.webContents.send('message_created_assistant', assistantmessage)
-    // const respons = await run.withResponse()
-    // console.log(respons)
+    // 通知渲染进程正在等待Run完成
+    MainIPC.mainWindow.webContents.postMessage('message_created_assistant', assistantmessage)
+    const resultmsg = await WaitAssistantMessage(run.id, thread_id, local_id)
+    if (resultmsg != null) {
+      MainIPC.mainWindow.webContents.postMessage('message_result_assistant', resultmsg)
+    }
   } catch (error) {
     return Promise.reject(error)
   }
 
   return Promise.resolve(true)
 })
+async function WaitAssistantMessage(
+  run_id: string,
+  thread_id: string,
+  local_id: string
+): Promise<OpenAI.Beta.Threads.Messages.ThreadMessage | null> {
+  const openai = new OpenAI(OpenAIParam)
+  // 完成,取消,超时,失败
+  const runstatus = ['completed', 'cancelled', 'expired', 'failed']
+  let run: Run
+  do {
+    await sleep(500)
+    run = await openai.beta.threads.runs.retrieve(thread_id, run_id)
+  } while (!runstatus.includes(run.status))
+  // 状态为完成,取出线程消息
+  if (run.status == 'completed') {
+    try {
+      const listparam: MessageListParams = { order: 'desc', limit: 100 }
+
+      const messages = await openai.beta.threads.messages.list(thread_id, listparam)
+      const msg = messages.data[0]
+      // 助手消息已提前返回到渲染进程,内容为"..."
+      // Run完成后 附加metadata RunResult状态会停止动画,local_id用于替换消息依据
+      msg.metadata = { MessageState: 'RunResult', LocalID: local_id }
+      return msg.role == 'assistant' ? msg : null
+    } catch (error) {
+      return null
+    }
+  }
+  return null
+}

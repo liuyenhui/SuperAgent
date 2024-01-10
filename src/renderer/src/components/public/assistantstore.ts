@@ -49,70 +49,59 @@ const storage: PersistStorage<AssistantsStoreType> = {
  */
 interface AssistantsStoreType {
   Assistants: System.Assistants
-  // 从文件读取, assistant.AssistantBase 代表一个文件的内容
-  InsertAssistant: (assistant: System.Assistant) => void
-  // 更新全部助手,invoke_init_assistants消息返回更新
-  UpdateAssistants: (assistants: System.Assistants) => void
-  // 修改 CodeInterpreter
-  UpdateAssistantCodeInterpreter: (AssistantID: string) => void
-  // 修改 助手消息状态
-  UpdateAssistantMessageState: (AssistantID: string, State: System.SendMessageState) => void
-  // 读取消息
-  LoadMessages: (AssistantID: string) => void
-  // 读取附加问件
-  LoadCloudFiles: (AssistantID: string) => void
-  // 读取Function
-  LoadFunction: (AssistantID: string) => void
 }
-
+const store: AssistantsStoreType = { Assistants: new Map<string, System.Assistant>() }
 export const AssistantsStore = create<AssistantsStoreType>()(
   persist(
-    immer((set) => ({
-      Assistants: new Map<string, System.Assistant>(),
-
-      InsertAssistant: async (assistant: System.Assistant): Promise<void> =>
-        set((state) => ({
-          ...state,
-          Assistants: new Map<string, System.Assistant>(state.Assistants).set(
-            assistant.AssistantBase.AssistantID,
-            assistant
-          )
-        })),
-      UpdateAssistants: (assistants: System.Assistants): void =>
-        set((state) => ({
-          ...state,
-          Assistants: new Map<string, System.Assistant>(assistants)
-        })),
-      // 代码解释器
-      UpdateAssistantCodeInterpreter: (AssistantID: string): void =>
-        set((state) => {
-          const assistant = state.Assistants.get(AssistantID)
-          assistant
-            ? (assistant.AssistantBase.CodeInterpreter = !assistant.AssistantBase.CodeInterpreter)
-            : null
-          // 远程修改代码解释器
-          window.electron.ipcRenderer.invoke('invoke_update_assistant_codeinterpreter', [
-            AssistantID,
-            assistant?.AssistantBase.CodeInterpreter
-          ])
-        }),
-
-      UpdateAssistantMessageState: (AssistantID: string, State: System.SendMessageState): void =>
-        set((state) => {
-          const assistant = state.Assistants.get(AssistantID)
-          assistant ? (assistant.AssistantBase.MessageState = State) : null
-        }),
-
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      LoadMessages: (_assistantid): void => {},
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      LoadCloudFiles: (_assistantid): void => {},
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      LoadFunction: (_assistantid): void => {}
-    })),
+    immer(() => store),
     {
       name: 'assistants',
       storage
     }
   )
 )
+
+// 修改 助手Model ID
+export const UpdateAssistantModel = (
+  AssistantID: string,
+  modelname: string,
+  modelid: string
+): void =>
+  AssistantsStore.setState((store) => {
+    console.log(modelname)
+    const assistant = store.Assistants.get(AssistantID)
+    if (assistant) {
+      assistant.AssistantBase.Model = modelid
+      store.Assistants.set(AssistantID, assistant)
+    }
+    // return {
+    //   ...store,
+    //   Assistants: new Map(store.Assistants)
+    // }
+  })
+export const UpdateAssistants = (assistants: System.Assistants): void =>
+  AssistantsStore.setState((state) => ({
+    ...state,
+    Assistants: new Map<string, System.Assistant>(assistants)
+  }))
+
+export const UpdateAssistantCodeInterpreter = (AssistantID: string): void =>
+  AssistantsStore.setState((state) => {
+    const assistant = state.Assistants.get(AssistantID)
+    assistant
+      ? (assistant.AssistantBase.CodeInterpreter = !assistant.AssistantBase.CodeInterpreter)
+      : null
+    // 远程修改代码解释器
+    window.electron.ipcRenderer.invoke('invoke_update_assistant_codeinterpreter', [
+      AssistantID,
+      assistant?.AssistantBase.CodeInterpreter
+    ])
+  })
+export const UpdateAssistantMessageState = (
+  AssistantID: string,
+  State: System.SendMessageState
+): void =>
+  AssistantsStore.setState((state) => {
+    const assistant = state.Assistants.get(AssistantID)
+    assistant ? (assistant.AssistantBase.MessageState = State) : null
+  })

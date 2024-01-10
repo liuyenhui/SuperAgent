@@ -114,8 +114,9 @@ export default function ChatList(): JSX.Element {
   const listview = useRef<HTMLInputElement>(null)
 
   const assistantid = SystemInfoStore((store) => store.AssistantID)
-  const thread_id =
-    AssistantsStore.getState().Assistants.get(assistantid)?.AssistantBase.MetaData['thread_id']
+  const thread_id = AssistantsStore(
+    (state) => state.Assistants.get(assistantid)?.AssistantBase.MetaData['thread_id']
+  )
   const messages = UseMessages(thread_id)
   console.log(messages)
   // const threads = MessageStore(state=>state.threads)

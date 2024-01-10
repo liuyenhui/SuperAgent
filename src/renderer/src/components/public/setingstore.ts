@@ -4,7 +4,7 @@ import { immer } from 'zustand/middleware/immer'
 import { subscribeWithSelector } from 'zustand/middleware'
 
 // AI模型类型
-interface SetingModelType {
+export interface SetingModelType {
   id: string
   object: string
   created: string

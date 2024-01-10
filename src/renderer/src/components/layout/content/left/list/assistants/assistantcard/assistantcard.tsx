@@ -15,9 +15,7 @@ export function AssistantCard(props: AssistantProp): JSX.Element {
   // const [open, setOpen] = useState(false)
   const { assistantid } = props
   // 通过assistantid助手信息
-  // const assistant = AssistantsStore.getState().Assistants.get(assistantid) as System.Assistant
-  const assistants = AssistantsStore((state) => state.Assistants)
-  const assistant = assistants.get(assistantid)
+  const assistant = AssistantsStore((state) => state.Assistants.get(assistantid))
 
   // 更新当前使用的助手ID的函数
   // 获取正在使用的助手ID
