@@ -2,6 +2,7 @@
  * 定义消息存储
  */
 import { create } from 'zustand'
+import log from 'electron-log/renderer'
 
 // 存储实体
 const messages: System.MessageStoreType = {
@@ -11,20 +12,26 @@ export const MessageStore = create<System.MessageStoreType>()(() => messages)
 
 // 增加一个消息 通过线程ID,Message
 export const InsertMessage = (thread_id: string, message: System.Message): void =>
-  MessageStore.setState((store) => ({
-    ...store,
-    threads: store.threads.map((thread) => {
-      return thread.thread_id === thread_id
-        ? ({
-            ...thread,
-            // 删除同ID在添加,然后排序
-            messages: [...thread.messages.filter((msg) => msg.id != message.id), message].sort(
-              (a, b) => b.created_at - a.created_at
-            )
-          } as never)
-        : thread
-    })
-  }))
+  MessageStore.setState((store) => {
+    log.info(`insert message:${JSON.stringify(message)}`)
+    log.info(`old store:${JSON.stringify(store)}`)
+    const newstore = {
+      ...store,
+      threads: store.threads.map((thread) => {
+        return thread.thread_id === thread_id
+          ? ({
+              ...thread,
+              // 删除同ID在添加,然后排序
+              messages: [...thread.messages.filter((msg) => msg.id != message.id), message].sort(
+                (a, b) => b.created_at - a.created_at
+              )
+            } as never)
+          : thread
+      })
+    }
+    log.info(`new store:${JSON.stringify(newstore)}`)
+    return newstore
+  })
 export const ReplaceMessage = (thread_id: string, newMessage: System.Message): void =>
   MessageStore.setState((store) => ({
     ...store,
@@ -34,9 +41,11 @@ export const ReplaceMessage = (thread_id: string, newMessage: System.Message): v
             ...thread,
             // metadata Loaclid 与 msg.id 相同则替换消息,(open ai 返回消息后替换)
             messages: [
-              ...thread.messages.map((msg) =>
-                (msg.metadata as object)['LocalID'] == msg.id ? newMessage : msg
-              )
+              ...thread.messages.map((msg) => {
+                const LocalID = (newMessage.metadata as object)['LocalID'] as string
+                log.info(`new message id vs msg id ${LocalID}:${msg.id}`)
+                return (newMessage.metadata as object)['LocalID'] == msg.id ? newMessage : msg
+              })
             ].sort((a, b) => b.created_at - a.created_at)
           } as never)
         : thread
@@ -52,11 +61,35 @@ export const InsertThread = (thread_id: string, message: System.Message[]): void
       { thread_id: thread_id, messages: message }
     ]
   }))
+// 删除线程
+export const DeleteThread = (thread_id: string): void =>
+  MessageStore.setState((state) => ({
+    ...state,
+    threads: [
+      ...state.threads.filter((thread) => {
+        return thread.thread_id != thread_id
+      })
+    ]
+  }))
 // 获取线程消息
 export const UseMessages = (thread_id: string): System.Message[] => {
   return MessageStore(
     (store) => store.threads.filter((thread) => thread.thread_id === thread_id)[0]?.messages
   )
+}
+// 删除消息
+export const DeleteMessages = (thread_id: string): void => {
+  MessageStore.setState((store) => {
+    // 发送消息删除
+    return {
+      ...store,
+      threads: [
+        ...store.threads.map((thread) => {
+          return thread.thread_id == thread_id ? { ...thread, messages: [] } : thread
+        })
+      ]
+    }
+  })
 }
 
 // [

@@ -1,21 +1,8 @@
-import {
-  Avatar,
-  ButtonGroup,
-  Card,
-  Divider,
-  Grid,
-  IconButton,
-  Sheet,
-  Stack,
-  Tooltip
-} from '@mui/joy'
+import { Avatar, ButtonGroup, Card, Divider, Grid, Sheet, Stack } from '@mui/joy'
 import { RIGHT_HEAD_HEIGHT } from '@renderer/components/public/constants'
 import { SvgPathMap, SvgIcons } from '@renderer/components/public/SvgIcons'
 import { SystemInfoStore, UpdateSysinfo } from '@renderer/components/public/systemstore'
-import {
-  AssistantsStore,
-  UpdateAssistantCodeInterpreter
-} from '@renderer/components/public/assistantstore'
+import { AssistantsStore } from '@renderer/components/public/assistantstore'
 import { CludeFiles } from './cludefiles/cludefiles'
 import { Functions } from './functions/function'
 import log from 'electron-log'
@@ -51,27 +38,13 @@ function AvatarImage(props: ChatPropType): JSX.Element {
   // 获取Store中的 assistant
   const assistant = assistants.get(props.assistant?.AssistantBase.AssistantID)
   // 获取代码解释器开关状态
-  const open = assistant?.AssistantBase.CodeInterpreter
   return (
     <Stack direction="column" justifyContent="center" alignItems="center" sx={{ p: '5px' }}>
-      <Avatar alt={assistant?.AssistantBase.Name} src={assistant?.AssistantBase.ImagePath} />
-      <Tooltip
-        arrow
-        enterDelay={500}
-        placement="bottom-start"
-        variant="plain"
-        title="Code Interpreter"
-      >
-        <IconButton
-          onClick={() => {
-            UpdateAssistantCodeInterpreter(assistant?.AssistantBase.AssistantID as string)
-          }}
-          color={open ? 'success' : 'neutral'}
-          sx={{ p: 0, minHeight: '18px', bottom: '-4px' }}
-        >
-          <SvgIcons d={open ? SvgPathMap.ToggleOn : SvgPathMap.ToggleOff}></SvgIcons>
-        </IconButton>
-      </Tooltip>
+      <Avatar
+        sx={{ width: '30px', height: '30px' }}
+        alt={assistant?.AssistantBase.Name}
+        src={assistant?.AssistantBase.ImagePath}
+      />
     </Stack>
   )
 }

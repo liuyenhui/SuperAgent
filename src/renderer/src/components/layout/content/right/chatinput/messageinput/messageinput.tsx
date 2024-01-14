@@ -1,9 +1,10 @@
 import { SvgIcons, SvgPathMap } from '@renderer/components/public/SvgIcons'
 import { Box, Chip, Stack, Textarea, Typography } from '@mui/joy'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RIGHT_INPUT_HEIGHT } from '@renderer/components/public/constants'
 import { PostMessage } from '@renderer/components/public/systemstore'
+import log from 'electron-log/renderer'
 import { UpdateAssistantMessageState } from '@renderer/components/public/assistantstore'
 import {
   InsertMessage,
@@ -27,9 +28,9 @@ export default function MessageInput(props: {
       value={value}
       // 监听事件同步更改value状态
       onChange={(e) => setValue(e.target.value)}
-      onKeyDown={(event) => {
-        console.log(event.key)
-      }}
+      // onKeyDown={(_event) => {
+      //   // console.log(event.key)
+      // }}
       sx={{
         /// <reference path="" />
 
@@ -55,9 +56,8 @@ function BottomBar(props: {
   assistant_id: string | undefined
   setvalue: (value: string) => void
 }): JSX.Element {
-  let msglocalid: string = ''
   // 提交响应函数
-  const submit = (): void => {
+  const submit = useCallback((): void => {
     console.log(props.msg)
     // PostMessage(props.msg)
     // open ai user message
@@ -68,11 +68,11 @@ function BottomBar(props: {
     props.setvalue('')
     // 更新助手发送消息状态
     UpdateAssistantMessageState(props.assistant_id, 'UserSend')
-    msglocalid = uuidv4()
+    const msglocalid = uuidv4()
     const message: System.Message = {
       id: msglocalid,
       object: '',
-      created_at: moment.now(),
+      created_at: moment.now() / 1000,
       thread_id: props.thread_id,
       role: 'user',
       content: [
@@ -90,6 +90,7 @@ function BottomBar(props: {
       // 记录状态,与本地临时ID
       metadata: { MessageState: 'UserSend', LocalID: msglocalid }
     }
+
     // 插入用户临时消息等待返回,invoke_thread_message_create返回后更新
     InsertMessage(props.thread_id, message)
     const threads = MessageStore.getState().threads
@@ -101,8 +102,8 @@ function BottomBar(props: {
         assistant_id: props.assistant_id,
         file_ids: []
       })
-      .then((resultmessage) => {
-        console.log(resultmessage)
+      .then((result) => {
+        console.log(`invoke_thread_message_create ipc result${result}`)
       })
       .catch((error) => {
         PostMessage(error)
@@ -110,19 +111,22 @@ function BottomBar(props: {
       .finally(() => {
         props.assistant_id ? UpdateAssistantMessageState(props.assistant_id, 'None') : null
       })
-  }
+  }, [props])
   const { t } = useTranslation()
   // load did finish
   useEffect(() => {
     // open ai 返回用户创建的消息
-    window.electron.ipcRenderer.on('message_created_user', (_event, arge) => {
+    window.electron.ipcRenderer.on('message_created_user_result', (_event, arge) => {
+      const message = arge as System.Message
+      log.info(`recv message_created_user_result messages:${JSON.stringify(message)}`)
       // arge 返回消息
-      ReplaceMessage(props.thread_id, arge)
-      console.log(arge)
+      ReplaceMessage(message.thread_id, message)
     })
     // 助手消息创建,此时创建run,等待run完成
     window.electron.ipcRenderer.on('message_created_assistant', (_event, arge) => {
       const message = arge as System.Message
+      log.info(`recv message_created_assistant arge(message):${JSON.stringify(message)} `)
+
       // arge 返回消息
       InsertMessage(message.thread_id, message)
       console.log(arge)
@@ -130,9 +134,14 @@ function BottomBar(props: {
     // 助手消息返回,此时run状态completed
     window.electron.ipcRenderer.on('message_result_assistant', (_event, arge) => {
       const message = arge as System.Message
+      log.info(`recv message_result_assistant ${JSON.stringify(message)}`)
+
       // arge 返回消息
       ReplaceMessage(message.thread_id, message)
-      console.log(arge)
+      const messages = MessageStore.getState().threads.find((thread) => {
+        return thread.thread_id == message.thread_id
+      })
+      log.info(messages)
     })
   }, [])
   return (

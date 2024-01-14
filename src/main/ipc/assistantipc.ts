@@ -91,6 +91,11 @@ ipcMain.handle('invoke_update_assistant_codeinterpreter', async (_event, arge) =
   }
   await openai.beta.assistants.update(assistant_id, { tools: tools })
 })
+ipcMain.handle('invoke_update_assistant_model', async (_event, arge) => {
+  const { assistant_id, model } = arge
+  const openai = new OpenAI(OpenAIParam)
+  await openai.beta.assistants.update(assistant_id, { model: model })
+})
 // arge - { thread_id , before_message_id}
 ipcMain.handle('invoke_thread_message_list', async (_event, arge) => {
   const { thread_id, before_message_id = undefined } = arge
@@ -101,7 +106,23 @@ ipcMain.handle('invoke_thread_message_list', async (_event, arge) => {
     return Promise.reject(error)
   }
 })
-
+ipcMain.handle('invoke_thread_message_delete', async (_event, arge) => {
+  const { assistant_id, thread_id } = arge
+  log.info(`delete message ${assistant_id},${thread_id}`)
+  try {
+    // 创建thread
+    const openai = new OpenAI(OpenAIParam)
+    const newthread = await openai.beta.threads.create()
+    // 删除旧线程
+    await openai.beta.threads.del(thread_id)
+    // 更新assistant
+    await openai.beta.assistants.update(assistant_id, { metadata: { thread_id: newthread.id } })
+    return Promise.resolve({ AssistantID: assistant_id, NewThreadID: newthread.id  })
+  } catch (error) {
+    log.info(`ipcMain invoke_thread_message_delete ${error}`)
+    return Promise.reject(error)
+  }
+})
 /**
  * 同步远程助手
  * @param key API Key
@@ -220,6 +241,14 @@ function AttachLoaclAssistant(local: System.Assistant, remote: Assistant): Syste
   local.AssistantBase.AssistantID = remote.id
   local.AssistantBase.CreateAt = remote.created_at
   local.AssistantBase.MetaData = remote.metadata as object
+  const tools = remote.tools.find((item) => {
+    return item.type == 'code_interpreter'
+  })
+  tools
+    ? (local.AssistantBase.CodeInterpreter = true)
+    : (local.AssistantBase.CodeInterpreter = false)
+  local.AssistantBase.Model = remote.model
+  // remote.tools.find(OpenAI.Beta.Assistants.Assistant.CodeInterpreter)
   //关闭Disabled
   local.AssistantBase.Disabled = false
   // 设置状态

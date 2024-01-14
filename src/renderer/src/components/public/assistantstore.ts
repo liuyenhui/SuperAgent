@@ -68,23 +68,26 @@ export const UpdateAssistantModel = (
   modelid: string
 ): void =>
   AssistantsStore.setState((store) => {
-    console.log(modelname)
+    log.info(
+      `update assistant model AssistantID:${AssistantID} ModelName:${modelname} ModelID:${modelid}`
+    )
     const assistant = store.Assistants.get(AssistantID)
     if (assistant) {
       assistant.AssistantBase.Model = modelid
       store.Assistants.set(AssistantID, assistant)
     }
-    // return {
-    //   ...store,
-    //   Assistants: new Map(store.Assistants)
-    // }
+    // 远程修改助手Model
+    window.electron.ipcRenderer.invoke('invoke_update_assistant_model', {
+      assistant_id: AssistantID,
+      model: modelid
+    })
   })
 export const UpdateAssistants = (assistants: System.Assistants): void =>
   AssistantsStore.setState((state) => ({
     ...state,
     Assistants: new Map<string, System.Assistant>(assistants)
   }))
-
+// 更新代码解释器
 export const UpdateAssistantCodeInterpreter = (AssistantID: string): void =>
   AssistantsStore.setState((state) => {
     const assistant = state.Assistants.get(AssistantID)
@@ -97,6 +100,7 @@ export const UpdateAssistantCodeInterpreter = (AssistantID: string): void =>
       assistant?.AssistantBase.CodeInterpreter
     ])
   })
+// 更新助手消息状态
 export const UpdateAssistantMessageState = (
   AssistantID: string,
   State: System.SendMessageState
@@ -104,4 +108,10 @@ export const UpdateAssistantMessageState = (
   AssistantsStore.setState((state) => {
     const assistant = state.Assistants.get(AssistantID)
     assistant ? (assistant.AssistantBase.MessageState = State) : null
+  })
+
+export const UpdateAssistantThreadID = (AssistantID: string, ThreadID: string): void =>
+  AssistantsStore.setState((state) => {
+    const assistant = state.Assistants.get(AssistantID)
+    assistant ? (assistant.AssistantBase.MetaData = { thread_id: ThreadID }) : null
   })

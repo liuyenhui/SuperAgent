@@ -1,4 +1,4 @@
-import { Card, Typography, Avatar, Grid, Sheet, Link, ButtonGroup, Box, Badge } from '@mui/joy'
+import { Card, Typography, Avatar, Grid, Sheet, Link, ButtonGroup, Badge, Stack } from '@mui/joy'
 import { SvgIcons, SvgPathMap } from '@renderer/components/public/SvgIcons'
 import log from 'electron-log'
 import { SystemInfoStore, UpdateSysinfo } from '@renderer/components/public/systemstore'
@@ -93,9 +93,9 @@ export function AssistantCard(props: AssistantProp): JSX.Element {
               </Typography>
             </Grid>
             <Grid xs={2} sx={{}}>
-              <Box>
+              <Stack>
                 <SvgIcons d={SvgPathMap.Info} />
-              </Box>
+              </Stack>
             </Grid>
           </Grid>
         </ButtonGroup>

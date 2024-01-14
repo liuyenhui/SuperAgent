@@ -6,9 +6,9 @@ import { useEffect, useRef, useState } from 'react'
  */
 export function AnimationText(props: { text: string; stop: boolean; loop: boolean }): JSX.Element {
   const [text, setText] = useState('')
-  const divref = useRef<HTMLSpanElement>(null)
+  const divref = useRef<HTMLParagraphElement>(null)
   useEffect(() => {
-    let index = 0
+    let index = 1
     const intervalid = setInterval(() => {
       if (props.stop) {
         clearInterval(intervalid)
@@ -17,7 +17,7 @@ export function AnimationText(props: { text: string; stop: boolean; loop: boolea
       setText(props.text.substring(0, index))
       index++
       if (props.loop && index > props.text.length) {
-        index = 0
+        index = 1
       }
       if (!props.loop && index > props.text.length) {
         clearInterval(intervalid)
@@ -30,7 +30,7 @@ export function AnimationText(props: { text: string; stop: boolean; loop: boolea
   }, [])
   return (
     <>
-      <span
+      <p
         ref={divref}
         style={{
           whiteSpace: 'nowrap',
@@ -42,10 +42,10 @@ export function AnimationText(props: { text: string; stop: boolean; loop: boolea
         }}
       >
         {props.text}
-      </span>
-      <span style={{ width: divref.current?.clientWidth, height: divref.current?.clientHeight }}>
+      </p>
+      <p style={{ width: divref.current?.clientWidth, height: divref.current?.clientHeight }}>
         {text}
-      </span>
+      </p>
     </>
   )
 }

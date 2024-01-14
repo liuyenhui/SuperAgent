@@ -30,8 +30,8 @@ function createWindow(): void {
       // 生成环境禁用 devTools
       // devTools: is.dev
     },
-    minWidth: 600,
-    minHeight: 500
+    minWidth: 800,
+    minHeight: 600
   })
 
   // 读取 Assistants 需要路径 app用于接收消息
