@@ -117,11 +117,21 @@ ipcMain.handle('invoke_thread_message_delete', async (_event, arge) => {
     await openai.beta.threads.del(thread_id)
     // 更新assistant
     await openai.beta.assistants.update(assistant_id, { metadata: { thread_id: newthread.id } })
-    return Promise.resolve({ AssistantID: assistant_id, NewThreadID: newthread.id  })
+    return Promise.resolve({ AssistantID: assistant_id, NewThreadID: newthread.id })
   } catch (error) {
     log.info(`ipcMain invoke_thread_message_delete ${error}`)
     return Promise.reject(error)
   }
+})
+ipcMain.handle('invoke_update_assistant_name_prompt', async (_event, arge) => {
+  const { AssistantID, Name, Prompt } = arge
+  const openai = new OpenAI(OpenAIParam)
+  const assistant = await openai.beta.assistants.update(AssistantID, {
+    name: Name,
+    instructions: Prompt
+  })
+  if (assistant) return Promise.resolve()
+  else return Promise.reject('update assistant error')
 })
 /**
  * 同步远程助手
@@ -241,6 +251,8 @@ function AttachLoaclAssistant(local: System.Assistant, remote: Assistant): Syste
   local.AssistantBase.AssistantID = remote.id
   local.AssistantBase.CreateAt = remote.created_at
   local.AssistantBase.MetaData = remote.metadata as object
+  // 提示词
+  local.AssistantBase.Prompt = remote.instructions ? remote.instructions : ''
   const tools = remote.tools.find((item) => {
     return item.type == 'code_interpreter'
   })

@@ -14,7 +14,7 @@
   },
   "chat":{
     "sendmessage":"发送",
-    "sendfiles":"发送文件:"
+    "sendfiles":"发送文件"
   },
   "seting":{
     "title":"设置你的Openai API Key",

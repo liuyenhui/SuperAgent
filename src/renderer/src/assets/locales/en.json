@@ -15,7 +15,7 @@
     },
     "chat":{
       "sendmessage":"Send Message",
-      "sendfiles":"Send Files:"
+      "sendfiles":"Send Files"
     },
     "seting":{
       "title":"Seting your openai api key",

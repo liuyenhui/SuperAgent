@@ -1,21 +1,21 @@
 Config:
-  Name: ChatGPT
-  Model: gpt-3.5-turbo-0613
+  Name: SuperGPT
+  Model: gpt-4-1106-preview
   Description: null
-  CreateAt: 1704301512
+  CreateAt: 1705427985
   NameCN: ChatGPT
-  Prompt: 小红书作者
+  Prompt: 你是javascript程序员
   Type: chat
   Functions: false
-  CodeInterpreter: false
+  CodeInterpreter: true
   Retrieval: false
   Files: null
-  AssistantID: asst_bMu5lCEpvQIkmFfAyCxTyzZ4
+  AssistantID: asst_qClNnf2mCm2RXUqn80rrSkVw
   Instructions: null,
   ImageFile: chat.png
   FileName: chat.yml
   ImagePath: resources/assistants/chat.png
   Disabled: false
   MetaData:
-    thread_id: thread_LjQvp4nEEYhp5C2WS2cSggSp
+    thread_id: thread_DQKWMv4nmpSaWWRGV63oMA5C
   MessageState: None

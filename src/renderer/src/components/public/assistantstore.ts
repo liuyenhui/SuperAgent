@@ -5,7 +5,7 @@ import { persist, PersistStorage } from 'zustand/middleware'
 
 import log from 'electron-log'
 enableMapSet()
-
+// 文件写入与读取
 const storage: PersistStorage<AssistantsStoreType> = {
   getItem: (name) => {
     const msgname = `${name}_load`
@@ -114,4 +114,28 @@ export const UpdateAssistantThreadID = (AssistantID: string, ThreadID: string): 
   AssistantsStore.setState((state) => {
     const assistant = state.Assistants.get(AssistantID)
     assistant ? (assistant.AssistantBase.MetaData = { thread_id: ThreadID }) : null
+  })
+export const UpdateAssistantNamePrompt = async (
+  AssistantID: string,
+  Name: string,
+  Prompt: string
+): Promise<void> =>
+  AssistantsStore.setState((state) => {
+    const assistant = state.Assistants.get(AssistantID)
+    if (assistant) {
+      assistant.AssistantBase.Name = Name
+      assistant.AssistantBase.Prompt = Prompt
+    }
+    window.electron.ipcRenderer
+      .invoke('invoke_update_assistant_name_prompt', {
+        AssistantID: AssistantID,
+        Name: Name,
+        Prompt: Prompt
+      })
+      .then(() => {
+        return Promise.resolve()
+      })
+      .catch((error) => {
+        return Promise.reject(error)
+      })
   })

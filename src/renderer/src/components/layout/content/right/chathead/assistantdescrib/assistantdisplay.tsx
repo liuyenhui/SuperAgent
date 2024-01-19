@@ -62,13 +62,14 @@ export function AssistantDescrib(props: ChatPropType): JSX.Element {
         fontSize={'12px'}
         // sx={{ textOverflow: 'ellipsis' }}
       >
-        <span>Instructions:</span> {assistant?.AssistantBase.Prompt}
+        Instructions:
+        <span>{assistant?.AssistantBase.Prompt}</span>
       </Typography>
       <Modal open={opendialog} onClose={() => setOpenDialog(false)}>
         <ModalDialog>
           <Box>
             <Typography level="title-md">
-              {`Delete all message of assistant ${assistant.AssistantBase.Name}?`}
+              {`Delete all message of assistant ${assistant?.AssistantBase.Name}?`}
             </Typography>
           </Box>
           <Stack direction={'row'} alignItems={'center'} justifyContent={'center'} spacing={4}>
@@ -77,8 +78,8 @@ export function AssistantDescrib(props: ChatPropType): JSX.Element {
               disabled={deleteing}
               onClick={() => {
                 setDeleteing(true)
-                const thread_id = assistant.AssistantBase.MetaData['thread_id']
-                const assistant_id = assistant.AssistantBase.AssistantID
+                const thread_id = assistant?.AssistantBase.MetaData['thread_id']
+                const assistant_id = assistant?.AssistantBase.AssistantID
                 // 删除本地缓存
                 // DeleteMessages(thread_id)
                 // 发送异步消息,未处理错误
@@ -209,7 +210,7 @@ function DeleteMessagesButton(props: {
   const { assistant } = props
   const thread = MessageStore((state) =>
     state.threads.find((thread) => {
-      return thread.thread_id == assistant.AssistantBase.MetaData['thread_id']
+      return thread.thread_id == assistant?.AssistantBase.MetaData['thread_id']
     })
   )
   const isEnable = thread && thread.messages.length > 0

@@ -151,6 +151,11 @@ declare namespace System {
   interface ImageBase {
     [prop: string]: string | number
   }
+  interface FileType {
+    FilePath: string
+    FileName: string
+    FilextName: string
+  }
 }
 // Thread 结构
 
