@@ -44,12 +44,16 @@ export default function ChatList(): JSX.Element {
           flexDirection: 'column-reverse',
           width: '100%',
           overflowY: 'scroll', //'auto',
+          overflowX: 'hidden', //'auto',
           pb: '0px',
           height: '100%',
           // scrollbarWidth: '3px',
           '&::-webkit-scrollbar': {
             width: '3px'
           },
+          // '&::-webkit-slider-runnable-track':{
+          //   width: '3px'
+          // },
           '&::-webkit-scrollbar-track': {
             backgroundColor: 'rgba(14, 13, 13, 0.8)',
             borderRadius: '10px'

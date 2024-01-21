@@ -1,7 +1,10 @@
 /**
  * 线程消息IPC通信
  */
-import { ipcMain } from 'electron'
+import { ipcMain, dialog } from 'electron'
+import path from 'node:path'
+import fs from 'node:fs'
+
 import { OpenAI } from 'openai'
 import log from 'electron-log'
 import { OpenAIParam, MainIPC } from './assistantipc'
@@ -67,6 +70,44 @@ ipcMain.handle('invoke_thread_message_create', async (_event, arge) => {
   } catch (error) {
     return Promise.reject(error)
   }
+})
+ipcMain.handle('invoke_message_file_download', async (_event, arge) => {
+  const { file_id, file_text } = arge
+  console.log(file_id, file_text)
+  const filename = path.basename(file_text)
+  const openai = new OpenAI(OpenAIParam)
+
+  dialog
+    .showSaveDialog({
+      title: 'save file',
+      defaultPath: filename
+    })
+    .then(async (result) => {
+      if (result.canceled) return
+      console.log(result.filePath)
+      // 搜索远程文件
+      const file = await openai.files.retrieve(file_id)
+      if (!file) {
+        dialog.showErrorBox('Error file no found!', `\nfileid:${file_id}\npath:${file_text}`)
+        return
+      }
+      const message = {
+        file_id: file_id,
+        file_path: result.filePath,
+        file_name: filename,
+        file_size: file.bytes
+      }
+      MainIPC.mainWindow.webContents.postMessage('post_filedownload_retrieve_result', message)
+      // 读取远程文件
+      const fileinfo = await openai.files.content(file_id)
+      const buffer = new Uint8Array(await fileinfo.arrayBuffer())
+      // 写入本地文件
+      fs.writeFileSync(result.filePath as string, buffer)
+      MainIPC.mainWindow.webContents.postMessage('post_filedownload_finish', message)
+    })
+    .catch((error) => {
+      dialog.showErrorBox('Error', error)
+    })
 })
 async function WaitAssistantMessage(
   run_id: string,

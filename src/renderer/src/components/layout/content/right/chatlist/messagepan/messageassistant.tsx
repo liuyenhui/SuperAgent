@@ -3,7 +3,7 @@ import { AnimationText } from '@renderer/components/public/AnimationText'
 import { AssistantsStore } from '@renderer/components/public/assistantstore'
 import { PostMessage } from '@renderer/components/public/systemstore'
 
-import { MarkDown } from './markdownplus'
+import { MarkDown } from './markdownreact'
 import moment from 'moment-timezone'
 moment.tz.setDefault()
 
@@ -66,7 +66,7 @@ export function MessageContentAssistent(props: { msg: System.Message }): JSX.Ele
               <Box
                 sx={{ whiteSpace: 'break-spaces', borderCollapse: 'collapse', borderColor: 'red' }}
               >
-                <MarkDown marktext={outvalue} />
+                <MarkDown marktext={outvalue} message={props.msg} />
               </Box>
             )}
           </Box>
