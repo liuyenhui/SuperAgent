@@ -13,6 +13,7 @@ export function MessagePan(props: { msg: System.Message }): JSX.Element {
         justifyContent={isuser ? 'flex-end' : 'flex-start'}
         alignItems="flex-start"
         m="5px"
+        sx={{ maxWidth: '100%' }}
       >
         {isuser ? (
           <MessageContentUser msg={props.msg} />

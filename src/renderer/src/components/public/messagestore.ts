@@ -71,12 +71,31 @@ export const DeleteThread = (thread_id: string): void =>
       })
     ]
   }))
-// 获取线程消息
-export const UseMessages = (thread_id: string): System.Message[] => {
-  return MessageStore(
-    (store) => store.threads.filter((thread) => thread.thread_id === thread_id)[0]?.messages
-  )
+// 获取线程全部消息(不包含重复的run_id,thread_id)
+export const UseMessages = (thread_id: string): System.Message[] | undefined => {
+  return MessageStore((store) => {
+    // 全部消息
+    const allmessges = store.threads.find((thread) => thread.thread_id === thread_id)?.messages
+    // 保留每个run最后一条消息
+    const messages = allmessges?.filter((item, index, array) => {
+      if (index > 0) {
+        return item.run_id != array[index - 1].run_id
+      } else {
+        // 第一个消息返回
+        return true
+      }
+    })
+    return messages
+  })
 }
+// 获取线程中的某个消息
+export const GetMessages = (thread_id: string, message_id): System.Message | undefined => {
+  const allmessges = MessageStore.getState().threads.find((thread) => thread.thread_id == thread_id)
+    ?.messages
+  const message = allmessges?.find((msg) => msg.id == message_id)
+  return message
+}
+
 // 删除消息
 export const DeleteMessages = (thread_id: string): void => {
   MessageStore.setState((store) => {

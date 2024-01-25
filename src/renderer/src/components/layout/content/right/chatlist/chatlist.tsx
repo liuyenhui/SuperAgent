@@ -16,6 +16,7 @@ export default function ChatList(): JSX.Element {
     (state) => state.Assistants.get(assistantid)?.AssistantBase.MetaData['thread_id']
   )
   const messages = UseMessages(thread_id)
+
   console.log(messages)
   // const threads = MessageStore(state=>state.threads)
   // const thread = threads.filter(thread=>thread.thread_id==)

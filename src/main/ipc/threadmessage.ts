@@ -83,7 +83,9 @@ ipcMain.handle('invoke_message_file_download', async (_event, arge) => {
       defaultPath: filename
     })
     .then(async (result) => {
-      if (result.canceled) return
+      if (result.canceled) {
+        return
+      }
       console.log(result.filePath)
       // 搜索远程文件
       const file = await openai.files.retrieve(file_id)
@@ -94,7 +96,7 @@ ipcMain.handle('invoke_message_file_download', async (_event, arge) => {
       const message = {
         file_id: file_id,
         file_path: result.filePath,
-        file_name: filename,
+        file_name: result.filePath ? path.basename(result.filePath) : '',
         file_size: file.bytes
       }
       MainIPC.mainWindow.webContents.postMessage('post_filedownload_retrieve_result', message)
@@ -108,6 +110,16 @@ ipcMain.handle('invoke_message_file_download', async (_event, arge) => {
     .catch((error) => {
       dialog.showErrorBox('Error', error)
     })
+})
+ipcMain.handle('invoke_message_steps', async (_enent, argv) => {
+  const { thread_id, run_id } = argv
+  try {
+    const openai = new OpenAI(OpenAIParam)
+    const steps = await openai.beta.threads.runs.steps.list(thread_id, run_id)
+    return Promise.resolve(steps.data)
+  } catch (error) {
+    return Promise.reject(error)
+  }
 })
 async function WaitAssistantMessage(
   run_id: string,

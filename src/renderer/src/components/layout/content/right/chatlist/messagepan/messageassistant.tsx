@@ -1,11 +1,82 @@
-import { Avatar, Box, Chip, Stack, Typography } from '@mui/joy'
+import { Avatar, Box, Chip, CircularProgress, Stack, Step, Stepper, Typography } from '@mui/joy'
 import { AnimationText } from '@renderer/components/public/AnimationText'
 import { AssistantsStore } from '@renderer/components/public/assistantstore'
 import { PostMessage } from '@renderer/components/public/systemstore'
 
 import { MarkDown } from './markdownreact'
 import moment from 'moment-timezone'
+import { SvgIcons, SvgPathMap } from '@renderer/components/public/SvgIcons'
+import { useState } from 'react'
+import { MessageStep } from './messagestep'
 moment.tz.setDefault()
+
+type OpenStep = 'Open' | 'Close' | 'Loading'
+function MessageRunStep(props: { msg: System.Message }): JSX.Element {
+  const { msg } = props
+  const [openstep, setOpenstep] = useState<OpenStep>('Close')
+  // 减少渲染,在此更新run steps
+  const [steps, setSteps] = useState<Array<System.Step>>([])
+  console.log(msg.id)
+  return (
+    <Stack direction="column" justifyContent="center" alignItems="center" width="40px">
+      {openstep == 'Loading' ? (
+        <CircularProgress thickness={1} size="sm" />
+      ) : (
+        <Box>
+          <Chip
+            onClick={() => {
+              if (openstep == 'Close') {
+                setOpenstep('Loading')
+                window.electron.ipcRenderer
+                  .invoke('invoke_message_steps', {
+                    thread_id: msg.thread_id,
+                    run_id: msg.run_id
+                  })
+                  .then((steps) => {
+                    setSteps(steps)
+                    console.log(steps)
+                    setOpenstep('Open')
+                  })
+                  .catch((error) => {
+                    alert(error)
+                  })
+                // const interval = setInterval(() => {
+                //   setOpenstep('Open')
+                //   clearInterval(interval)
+                // }, 3000)
+              } else {
+                setOpenstep('Close')
+              }
+            }}
+            variant="plain"
+            size="sm"
+          >
+            <Stack direction="row" justifyContent="center" alignItems="center">
+              <Typography sx={{ fontSize: '10px' }}>Step</Typography>
+              <SvgIcons
+                sx={{ fontSize: ' 14px', color: 'green' }}
+                d={openstep == 'Close' ? SvgPathMap.ChevronDown : SvgPathMap.ChevronUp}
+              ></SvgIcons>
+            </Stack>
+          </Chip>
+
+          <Stepper
+            sx={{ visibility: openstep == 'Close' ? 'hidden' : 'visible' }}
+            orientation="vertical"
+          >
+            {steps.map((step) => {
+              return (
+                <Step key={step.id}>
+                  <MessageStep step={step}></MessageStep>
+                </Step>
+              )
+            })}
+          </Stepper>
+        </Box>
+      )}
+    </Stack>
+  )
+}
 
 export function MessageContentAssistent(props: { msg: System.Message }): JSX.Element {
   let outvalue = ''
@@ -26,12 +97,15 @@ export function MessageContentAssistent(props: { msg: System.Message }): JSX.Ele
       alignItems="flex-start"
       sx={{ maxWidth: '80%' }}
     >
-      <Avatar
-        alt={assistant?.AssistantBase.Name}
-        src={assistant?.AssistantBase.ImagePath}
-        sx={{ width: '25px', height: '25px' }}
-        // src={imgfile}
-      />
+      <Stack direction="column" justifyContent="center" alignItems="center">
+        <Avatar
+          alt={assistant?.AssistantBase.Name}
+          src={assistant?.AssistantBase.ImagePath}
+          sx={{ width: '35px', height: '35px' }}
+          // src={imgfile}
+        />
+        <MessageRunStep {...props}></MessageRunStep>
+      </Stack>
       <Stack direction="column" justifyContent="flex-start" alignItems="flex-start">
         <Stack
           direction="row"

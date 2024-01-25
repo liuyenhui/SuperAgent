@@ -3,13 +3,10 @@ table {
   background-color: rgb(23, 23, 23);
   padding: 5px;
   box-shadow: 3px 3px 3px rgb(16, 15, 15);
-}
-table {
   width: auto;
   border-collapse: collapse;
   table-layout: fixed;
   text-align: center;
-
 }
 table, td, th
 {
@@ -22,6 +19,11 @@ table, td, th
 li {
   padding: 1px;
   margin: 1px;
+}
+/* markdown code auto next line  */
+pre,span {
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 

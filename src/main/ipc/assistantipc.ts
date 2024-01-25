@@ -199,7 +199,9 @@ async function SyncThreadMessages(
   const listparam: MessageListParams = { order: 'desc', limit: 100 }
   log.info(`list message ${thread_id} before ${before_message_id}`)
   const messages = await openai.beta.threads.messages.list(thread_id, listparam)
-  threadmessage.messages = messages.data
+  threadmessage.messages = messages.data as Array<System.Message>
+  log.info(`thread [${thread_id}] messages:`)
+  log.info(threadmessage.messages)
   // messagestore.threads.push({ thread_id: thread_id, messages: messages.data })
   return threadmessage
 }

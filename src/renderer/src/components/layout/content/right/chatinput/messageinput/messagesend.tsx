@@ -50,7 +50,7 @@ export function MessageSend(props: {
       run_id: '',
       file_ids: [],
       // 记录状态,与本地临时ID
-      metadata: { MessageState: 'UserSend', LocalID: msglocalid }
+      metadata: { MessageState: 'UserSend', LocalID: msglocalid as string, Steps: undefined }
     }
 
     // 插入用户临时消息等待返回,invoke_thread_message_create返回后更新
