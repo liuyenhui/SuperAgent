@@ -112,10 +112,16 @@ ipcMain.handle('invoke_message_file_download', async (_event, arge) => {
     })
 })
 ipcMain.handle('invoke_message_steps', async (_enent, argv) => {
-  const { thread_id, run_id } = argv
+  const { thread_id, run_id, msg_id } = argv
   try {
     const openai = new OpenAI(OpenAIParam)
-    const steps = await openai.beta.threads.runs.steps.list(thread_id, run_id)
+    const steps = await openai.beta.threads.runs.steps.list(thread_id, run_id, { order: 'asc' })
+    MainIPC.mainWindow.webContents.postMessage('post_message_steps', {
+      thread_id: thread_id,
+      run_id: run_id,
+      msg_id: msg_id,
+      steps: steps.data
+    })
     return Promise.resolve(steps.data)
   } catch (error) {
     return Promise.reject(error)
@@ -130,9 +136,19 @@ async function WaitAssistantMessage(
   // 完成,取消,超时,失败
   const runstatus = ['completed', 'cancelled', 'expired', 'failed']
   let run: Run
+  let steps: OpenAI.Beta.Threads.Runs.Steps.RunStepsPage
   do {
-    await sleep(500)
+    await sleep(1000)
     run = await openai.beta.threads.runs.retrieve(thread_id, run_id)
+    steps = await openai.beta.threads.runs.steps.list(thread_id, run_id, { order: 'asc' })
+    if (steps) {
+      //message_receive_steps
+      MainIPC.mainWindow.webContents.postMessage('post_message_steps', {
+        thread_id: thread_id,
+        run_id: run_id,
+        steps: steps.data
+      })
+    }
   } while (!runstatus.includes(run.status))
   // 状态为完成,取出线程消息
   if (run.status == 'completed') {
@@ -144,7 +160,7 @@ async function WaitAssistantMessage(
       const msg = messages.data[0]
       // 助手消息已提前返回到渲染进程,内容为"..."
       // Run完成后 附加metadata RunResult状态会停止动画,local_id用于替换消息依据
-      msg.metadata = { MessageState: 'RunResult', LocalID: local_id }
+      msg.metadata = { MessageState: 'RunResult', LocalID: local_id, Steps: steps.data }
       return msg.role == 'assistant' ? msg : null
     } catch (error) {
       return null

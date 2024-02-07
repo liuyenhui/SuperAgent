@@ -121,7 +121,7 @@ declare namespace System {
   }
   type FunctionCall = {
     id: string
-    type: 'retrieval'
+    type: 'function'
     function: {
       name: string
       arguments: string

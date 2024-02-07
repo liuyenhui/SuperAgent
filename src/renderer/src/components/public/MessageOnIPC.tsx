@@ -1,7 +1,11 @@
+/**
+ * 负责渲染进程IPC通信响应
+ */
 import { useEffect, useState } from 'react'
 import log from 'electron-log/renderer'
 import { Snackbar, Button, Typography } from '@mui/joy'
 import { SvgIcons, SvgPathMap } from './SvgIcons'
+import { SetMessageSteps } from './messagestore'
 // type DownFileState = 'None' | 'DownLoad' | 'Finish'
 type DownFileState = {
   file_name: string
@@ -42,6 +46,11 @@ export function MessageOnIPC(): JSX.Element {
       })
 
       log.info(`recv post_filedownload_finish ${file_id} ${file_path} ${file_name} ${file_size}`)
+    })
+    window.electron.ipcRenderer.on('post_message_steps', (_event, message) => {
+      const { thread_id, run_id, msg_id, steps } = message
+      SetMessageSteps(thread_id, run_id, steps)
+      console.log(thread_id, run_id, msg_id, steps)
     })
   }, [])
   return (

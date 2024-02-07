@@ -6,16 +6,26 @@ import { PostMessage } from '@renderer/components/public/systemstore'
 import { MarkDown } from './markdownreact'
 import moment from 'moment-timezone'
 import { SvgIcons, SvgPathMap } from '@renderer/components/public/SvgIcons'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MessageStep } from './messagestep'
+import { GetMessagesSteps } from '@renderer/components/public/messagestore'
 moment.tz.setDefault()
 
 type OpenStep = 'Open' | 'Close' | 'Loading'
+
 function MessageRunStep(props: { msg: System.Message }): JSX.Element {
   const { msg } = props
-  const [openstep, setOpenstep] = useState<OpenStep>('Close')
+  const [openstep, setOpenstep] = useState<OpenStep>(msg.metadata?.Steps ? 'Open' : 'Close')
   // 减少渲染,在此更新run steps
-  const [steps, setSteps] = useState<Array<System.Step>>([])
+  // const [steps, setSteps] = useState<Array<System.Step>>([])
+  const steps = GetMessagesSteps(msg.thread_id, msg.id)
+
+  useEffect(() => {
+    if (msg.metadata?.Steps) {
+      setOpenstep('Open')
+      // setSteps(msg.metadata.Steps)
+    }
+  }, [steps])
   console.log(msg.id)
   return (
     <Stack direction="column" justifyContent="center" alignItems="center" width="40px">
@@ -30,14 +40,18 @@ function MessageRunStep(props: { msg: System.Message }): JSX.Element {
                 window.electron.ipcRenderer
                   .invoke('invoke_message_steps', {
                     thread_id: msg.thread_id,
-                    run_id: msg.run_id
+                    run_id: msg.run_id,
+                    msg_id: msg.id
                   })
                   .then((steps) => {
-                    setSteps(steps)
+                    // setSteps(steps)
+                    // Steps关联消息
+                    // if (msg.metadata) msg.metadata.Steps = steps as Array<System.Step>
                     console.log(steps)
-                    setOpenstep('Open')
+                    // setOpenstep('Open')
                   })
                   .catch((error) => {
+                    setOpenstep('Close')
                     alert(error)
                   })
                 // const interval = setInterval(() => {
@@ -50,6 +64,7 @@ function MessageRunStep(props: { msg: System.Message }): JSX.Element {
             }}
             variant="plain"
             size="sm"
+            sx={{ visibility: openstep == 'Open' ? 'hidden' : 'visible' }}
           >
             <Stack direction="row" justifyContent="center" alignItems="center">
               <Typography sx={{ fontSize: '10px' }}>Step</Typography>
@@ -61,14 +76,19 @@ function MessageRunStep(props: { msg: System.Message }): JSX.Element {
           </Chip>
 
           <Stepper
-            sx={{ visibility: openstep == 'Close' ? 'hidden' : 'visible' }}
+            sx={{
+              visibility: openstep == 'Close' ? 'hidden' : 'visible',
+              '--Step-connectorInset': '0px'
+            }}
             orientation="vertical"
           >
-            {steps.map((step) => {
+            {steps.map((step, index) => {
               return (
-                <Step key={step.id}>
-                  <MessageStep step={step}></MessageStep>
-                </Step>
+                <Step
+                  key={step.id}
+                  indicator={<MessageStep step={step} index={index}></MessageStep>}
+                  // sx={{ columnGap: '2px' }}
+                ></Step>
               )
             })}
           </Stepper>

@@ -24,7 +24,8 @@ export default function ChatList(): JSX.Element {
     // 刷新后滚动到底部
     if (listview.current && listview.current.scrollTo)
       listview.current.scrollTo({ top: listview.current.scrollHeight - listview.current.height })
-  })
+    // 消息数量增加时自动滚动,steps更新不滚动
+  }, [messages?.length])
   return (
     <Stack
       direction="column"

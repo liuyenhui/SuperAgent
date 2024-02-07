@@ -32,6 +32,7 @@ export const InsertMessage = (thread_id: string, message: System.Message): void 
     log.info(`new store:${JSON.stringify(newstore)}`)
     return newstore
   })
+// 替换一个消息
 export const ReplaceMessage = (thread_id: string, newMessage: System.Message): void =>
   MessageStore.setState((store) => ({
     ...store,
@@ -89,10 +90,12 @@ export const UseMessages = (thread_id: string): System.Message[] | undefined => 
   })
 }
 // 获取线程中的某个消息
-export const GetMessages = (thread_id: string, message_id): System.Message | undefined => {
+export const GetMessages = (thread_id: string, message_id: string): System.Message | undefined => {
   const allmessges = MessageStore.getState().threads.find((thread) => thread.thread_id == thread_id)
     ?.messages
-  const message = allmessges?.find((msg) => msg.id == message_id)
+  const message = allmessges?.find((msg) => {
+    return msg.id == message_id
+  })
   return message
 }
 
@@ -109,6 +112,31 @@ export const DeleteMessages = (thread_id: string): void => {
       ]
     }
   })
+}
+export const SetMessageSteps = (
+  thread_id: string,
+  run_id: string,
+  steps: Array<System.Step>
+): void => {
+  MessageStore.setState((store) => {
+    const thread = store.threads.find((th) => th.thread_id == thread_id)
+    if (!thread) return { ...store }
+    const msg = thread.messages.find((msg) => msg.run_id == run_id)
+    if (!msg || !msg.metadata) return { ...store }
+    msg.metadata.Steps = steps
+    return {
+      ...store
+    }
+  })
+}
+// 获取steps 需要renderer 进程中使用
+export const GetMessagesSteps = (thread_id: string, message_id: string): Array<System.Step> => {
+  const steps = MessageStore((store) => {
+    return store.threads
+      .find((th) => th.thread_id == thread_id)
+      ?.messages.find((msg) => msg.id == message_id)?.metadata?.Steps
+  })
+  return steps ? steps : []
 }
 
 // [

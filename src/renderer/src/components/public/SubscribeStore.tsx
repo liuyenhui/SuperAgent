@@ -67,13 +67,12 @@ function MessageInit(): void {
         thread_id: thread_id,
         before_message_id: undefined
       })
-      .then((thread: System.ThreadType) => {
+      .then((messages: Array<System.Message>) => {
         // 插入线程
-        InsertThread(thread.thread_id, thread.messages)
+        InsertThread(thread_id, messages)
       })
       .catch((error) => {
-        // PostMessage(error)
-        console.log(error)
+        alert(error)
       })
   })
 }

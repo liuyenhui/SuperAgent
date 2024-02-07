@@ -38,7 +38,7 @@ export function AssistantDescrib(props: ChatPropType): JSX.Element {
   return (
     <Grid sx={{ userSelect: 'none' }} spacing={0.2}>
       <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
-        <Typography level="title-sm" id="card-description">
+        <Typography noWrap level="title-sm" id="card-description">
           {assistant?.AssistantBase.Name}
         </Typography>
         <ButtonGroup
@@ -62,8 +62,7 @@ export function AssistantDescrib(props: ChatPropType): JSX.Element {
         fontSize={'12px'}
         // sx={{ textOverflow: 'ellipsis' }}
       >
-        Instructions:
-        <span>{assistant?.AssistantBase.Prompt}</span>
+        {`Instructions:${assistant?.AssistantBase.Prompt}`}
       </Typography>
       <Modal open={opendialog} onClose={() => setOpenDialog(false)}>
         <ModalDialog>

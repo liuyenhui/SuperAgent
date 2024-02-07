@@ -31,7 +31,7 @@ export default function Layout(): JSX.Element {
         SetAppState(KeyState.Setkey)
       })
       .catch((error) => {
-        console.log(error)
+        alert(error)
       })
       .finally(() => {
         setLoading(false)

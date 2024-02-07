@@ -100,7 +100,11 @@ ipcMain.handle('invoke_update_assistant_model', async (_event, arge) => {
 ipcMain.handle('invoke_thread_message_list', async (_event, arge) => {
   const { thread_id, before_message_id = undefined } = arge
   try {
-    const messages = await SyncThreadMessages(thread_id, before_message_id)
+    const openai = new OpenAI(OpenAIParam)
+    const listparam: MessageListParams = { order: 'desc', limit: 100 }
+    log.info(`list message ${thread_id} before ${before_message_id}`)
+    const msgresponse = await openai.beta.threads.messages.list(thread_id, listparam)
+    const messages = msgresponse.data as Array<System.Message>
     return Promise.resolve(messages)
   } catch (error) {
     return Promise.reject(error)
@@ -184,26 +188,6 @@ async function SyncAssistants(
   }
   // 添加助手消息
   return newassistants
-}
-async function SyncThreadMessages(
-  thread_id: string,
-  before_message_id: string
-): Promise<System.ThreadType> {
-  const threadmessage: System.ThreadType = { thread_id: thread_id, messages: [] }
-
-  const openai = new OpenAI(OpenAIParam)
-  const thread = await openai.beta.threads.retrieve(thread_id)
-  if (!thread) {
-    return threadmessage
-  }
-  const listparam: MessageListParams = { order: 'desc', limit: 100 }
-  log.info(`list message ${thread_id} before ${before_message_id}`)
-  const messages = await openai.beta.threads.messages.list(thread_id, listparam)
-  threadmessage.messages = messages.data as Array<System.Message>
-  log.info(`thread [${thread_id}] messages:`)
-  log.info(threadmessage.messages)
-  // messagestore.threads.push({ thread_id: thread_id, messages: messages.data })
-  return threadmessage
 }
 /**
  *

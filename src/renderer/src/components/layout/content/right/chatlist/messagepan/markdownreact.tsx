@@ -32,7 +32,7 @@ type ILinkProps = React.DetailedHTMLProps<
   HTMLAnchorElement
 >
 
-const LinkComponent = (props: ILinkProps, message: System.Message): JSX.Element => {
+const LinkComponent = (props: ILinkProps, message: System.Message | undefined): JSX.Element => {
   const { children, title } = props
   return (
     <a
@@ -40,7 +40,7 @@ const LinkComponent = (props: ILinkProps, message: System.Message): JSX.Element 
       onClick={() => {
         // title 不是sandbox开头,表示非文件下载
         const match = title && /^sandbox:.*/.test(title)
-        if (!match) {
+        if (!match || !message) {
           return
         }
 
@@ -131,11 +131,14 @@ function CodeHighlight(props): JSX.Element {
   return widget
 }
 
-export function MarkDown(props: { marktext: string; message: System.Message }): JSX.Element {
+export function MarkDown(props: {
+  marktext: string
+  message?: System.Message | undefined
+}): JSX.Element {
   const { marktext, message } = props
 
   const LinkDown = (props: ILinkProps): JSX.Element => {
-    return LinkComponent(props, message)
+    return message ? LinkComponent(props, message) : <></>
   }
   const componenets = {
     // a: LinkComponent,
