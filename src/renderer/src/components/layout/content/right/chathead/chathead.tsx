@@ -1,31 +1,39 @@
 import {
   Avatar,
+  Button,
   ButtonGroup,
   Card,
+  Chip,
+  DialogContent,
+  DialogTitle,
   Divider,
+  FormLabel,
   Grid,
-  IconButton,
+  Input,
+  LinearProgress,
+  Modal,
+  ModalClose,
+  ModalDialog,
   Sheet,
-  Stack,
-  Tooltip,
-  Typography
+  Stack
 } from '@mui/joy'
 import { RIGHT_HEAD_HEIGHT } from '@renderer/components/public/constants'
 import { SvgPathMap, SvgIcons } from '@renderer/components/public/SvgIcons'
-import { SystemInfoStore } from '@renderer/components/public/systemstore'
-import { AssistantsStore } from '@renderer/components/public/assistantstore'
-import { CludeFiles } from './cludefiles/cludefiles'
+import { SystemInfoStore, UpdateSysinfo } from '@renderer/components/public/systemstore'
+import {
+  AssistantsStore,
+  UpdateAssistantNamePrompt
+} from '@renderer/components/public/assistantstore'
+import { CludeFiles } from './cloudfiles/cloudfiles'
 import { Functions } from './functions/function'
 import log from 'electron-log'
-interface ChatPropType {
-  assistant: System.Assistant
-}
+import { AssistantDescrib, ChatPropType } from './assistantdescrib/assistantdisplay'
+import { useState } from 'react'
 // 侧边栏隐藏
 function PopListView(): JSX.Element {
-  const lefthidden = SystemInfoStore((state) => state.info.LeftHidden)
-  const update = SystemInfoStore((state) => state.update)
+  const lefthidden = SystemInfoStore((state) => state.LeftHidden)
   const onClick = (): void => {
-    update('LeftHidden', !lefthidden)
+    UpdateSysinfo('LeftHidden', !lefthidden)
   }
   return (
     <Sheet
@@ -49,61 +57,118 @@ function PopListView(): JSX.Element {
 // 头像
 function AvatarImage(props: ChatPropType): JSX.Element {
   const assistants = AssistantsStore((state) => state.Assistants) //props.assistant
-  const UpdateAssistantCodeInterpreter = AssistantsStore(
-    (state) => state.UpdateAssistantCodeInterpreter
-  )
   // 获取Store中的 assistant
   const assistant = assistants.get(props.assistant?.AssistantBase.AssistantID)
+  const [open, setOpen] = useState(false)
   // 获取代码解释器开关状态
-  const open = assistant?.AssistantBase.CodeInterpreter
   return (
-    <Stack direction="column" justifyContent="center" alignItems="center" sx={{ p: '5px' }}>
-      <Avatar alt={assistant?.AssistantBase.Name} src={assistant?.AssistantBase.ImagePath} />
-      <Tooltip
-        arrow
-        enterDelay={500}
-        placement="bottom-start"
+    <Stack
+      direction="column"
+      justifyContent="center"
+      alignItems="center"
+      spacing={'3px'}
+      sx={{ p: '5px' }}
+    >
+      <Avatar
+        sx={{ width: '30px', height: '30px' }}
+        alt={assistant?.AssistantBase.Name}
+        src={assistant?.AssistantBase.ImagePath}
+      />
+      <Chip
         variant="plain"
-        title="Code Interpreter"
+        onClick={() => {
+          setOpen(true)
+        }}
       >
-        <IconButton
-          onClick={() => {
-            UpdateAssistantCodeInterpreter(assistant?.AssistantBase.AssistantID as string)
-          }}
-          color={open ? 'success' : 'neutral'}
-          sx={{ p: 0, minHeight: '18px', bottom: '-4px' }}
-        >
-          <SvgIcons d={open ? SvgPathMap.ToggleOn : SvgPathMap.ToggleOff}></SvgIcons>
-        </IconButton>
-      </Tooltip>
+        <SvgIcons color="success" fontSize={'small'} d={SvgPathMap.Edit}></SvgIcons>
+      </Chip>
+      {assistant ? (
+        <EditDialog assistant={assistant} open={open} setOpen={setOpen}></EditDialog>
+      ) : (
+        <></>
+      )}
     </Stack>
   )
 }
-// 名称及提示词
-function AssistantDescrib(props: ChatPropType): JSX.Element {
-  const { assistant } = props
-
+function EditDialog(props: {
+  assistant: System.Assistant
+  open: boolean
+  setOpen: (open: boolean) => void
+}): JSX.Element {
+  const [updating, setUpdating] = useState(false)
+  const [name, setName] = useState(props.assistant.AssistantBase.Name)
+  const [prompt, setPrompt] = useState(props.assistant.AssistantBase.Prompt)
   return (
-    <Grid sx={{ userSelect: 'none' }}>
-      <Typography level="title-md" id="card-description">
-        {assistant?.AssistantBase.Name}
-      </Typography>
-      <Typography
-        noWrap
-        level="body-sm"
-        aria-describedby="card-description"
-        // sx={{ textOverflow: 'ellipsis' }}
-      >
-        {assistant?.AssistantBase.Prompt}
-      </Typography>
-    </Grid>
+    <Modal
+      open={props.open}
+      onClose={() => {
+        props.setOpen(false)
+        setUpdating(false)
+      }}
+    >
+      <ModalDialog>
+        <ModalClose variant="plain" sx={{ m: 1 }} />
+        <DialogTitle>Eidt assistant info</DialogTitle>
+        <DialogContent>Modifi name and instructions of the assistant</DialogContent>
+
+        <Stack spacing={2}>
+          <FormLabel>Name</FormLabel>
+          <Input
+            autoFocus
+            required
+            defaultValue={props.assistant.AssistantBase.Name}
+            onChange={(event) => {
+              setName(event.currentTarget.value)
+            }}
+          />
+          <FormLabel>Instructions</FormLabel>
+          <Input
+            required
+            defaultValue={props.assistant.AssistantBase.Prompt}
+            onChange={(event) => {
+              setPrompt(event.currentTarget.value)
+            }}
+          />
+          <Button
+            type="submit"
+            onClick={() => {
+              setUpdating(true)
+              // alert(`name:${name} prompt:${prompt}`)
+              UpdateAssistantNamePrompt(
+                props.assistant.AssistantBase.AssistantID,
+                name,
+                prompt
+              ).then(() => {
+                setUpdating(false)
+                props.setOpen(false)
+              })
+            }}
+            disabled={updating}
+          >
+            Submit
+          </Button>
+        </Stack>
+        <LinearProgress
+          thickness={2}
+          sx={{
+            position: 'fixed',
+            width: '100%',
+            bottom: '0',
+            left: '0',
+            zIndex: '10',
+            m: '0',
+            // 全局修改
+            display: updating ? 'flex' : 'none'
+          }}
+        />
+      </ModalDialog>
+    </Modal>
   )
 }
-
 export default function ChatHead(): JSX.Element {
-  const assistantid = SystemInfoStore((state) => state.info.AssistantID)
+  const assistantid = SystemInfoStore((state) => state.AssistantID)
   log.info(assistantid)
-  const assistant = AssistantsStore.getState().Assistants.get(assistantid)
+  const assistant = AssistantsStore((state) => state.Assistants.get(assistantid))
   log.info(`ChatHead getassistant id:${assistantid} name:${assistant?.AssistantBase.Name}`)
   return (
     <Sheet
@@ -147,9 +212,9 @@ export default function ChatHead(): JSX.Element {
                 alignItems="flex-start"
                 width="100%"
               >
-                <CludeFiles></CludeFiles>
+                <CludeFiles assistant={assistant as System.Assistant}></CludeFiles>
                 <Divider sx={{ ml: '30px' }} orientation="horizontal"></Divider>
-                <Functions></Functions>
+                <Functions assistant={assistant as System.Assistant}></Functions>
               </Stack>
             </Grid>
           </Grid>

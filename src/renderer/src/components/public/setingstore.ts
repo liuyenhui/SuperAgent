@@ -4,7 +4,7 @@ import { immer } from 'zustand/middleware/immer'
 import { subscribeWithSelector } from 'zustand/middleware'
 
 // AI模型类型
-interface SetingModelType {
+export interface SetingModelType {
   id: string
   object: string
   created: string
@@ -89,6 +89,13 @@ export const SetModels = (models: object): void => {
     ...store,
     SetingModel: select
   }))
+}
+
+export const GetModelName = (id: string): string | undefined => {
+  const name = SetingStore.getState().SetingModel.find((value) => {
+    return value.id == id
+  })?.name
+  return name
 }
 
 export const LockInit = (): boolean => {

@@ -1,7 +1,7 @@
-import { Card, Typography, Avatar, Grid, Sheet, Link, ButtonGroup, Box, Badge } from '@mui/joy'
+import { Card, Typography, Avatar, Grid, Sheet, Link, ButtonGroup, Badge, Stack } from '@mui/joy'
 import { SvgIcons, SvgPathMap } from '@renderer/components/public/SvgIcons'
 import log from 'electron-log'
-import { SystemInfoStore } from '@renderer/components/public/systemstore'
+import { SystemInfoStore, UpdateSysinfo } from '@renderer/components/public/systemstore'
 import { AssistantsStore } from '@renderer/components/public/assistantstore'
 // 测试使用,发布删除
 // import imgfile from '@resources/assistants/chat.png'
@@ -15,19 +15,16 @@ export function AssistantCard(props: AssistantProp): JSX.Element {
   // const [open, setOpen] = useState(false)
   const { assistantid } = props
   // 通过assistantid助手信息
-  // const assistant = AssistantsStore.getState().Assistants.get(assistantid) as System.Assistant
-  const assistants = AssistantsStore((state) => state.Assistants)
-  const assistant = assistants.get(assistantid)
+  const assistant = AssistantsStore((state) => state.Assistants.get(assistantid))
 
   // 更新当前使用的助手ID的函数
-  const update = SystemInfoStore((state) => state.update)
   // 获取正在使用的助手ID
-  const selectassistantid = SystemInfoStore((state) => state.info.AssistantID)
+  const selectassistantid = SystemInfoStore((state) => state.AssistantID)
   log.info(assistant?.AssistantBase.ImagePath)
 
   const onClick = (event: unknown): void => {
     // setColor('primary')
-    update('AssistantID', assistantid)
+    UpdateSysinfo('AssistantID', assistantid)
     console.log(event)
   }
   // log.info(`AssistantID:${AssistantID}`)
@@ -96,9 +93,9 @@ export function AssistantCard(props: AssistantProp): JSX.Element {
               </Typography>
             </Grid>
             <Grid xs={2} sx={{}}>
-              <Box>
+              <Stack>
                 <SvgIcons d={SvgPathMap.Info} />
-              </Box>
+              </Stack>
             </Grid>
           </Grid>
         </ButtonGroup>

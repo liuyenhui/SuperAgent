@@ -1,18 +1,23 @@
 Config:
   Name: Excel Assistent
-  Model: gpt-3.5-turbo-0613
+  Model: gpt-4-1106-preview
   Description: null
-  CreateAt: 1704123776
+  CreateAt: 1704301515
   NameCN: Excel 助手
   Prompt: 你是excel专家,擅长处理excel的各种操作
   Type: chat
   Functions: false
-  CodeInterpreter: true
+  CodeInterpreter: false
   Retrieval: false
   Files: null
-  AssistantID: asst_Dy4m7NACqgMXCfsxA9tdGd7t
+  AssistantID: asst_a0v1ZdrDAIM5Xt9pNC65ukJZ
   Instructions: null
   ImageFile: excel.png
   FileName: excel.yml
   ImagePath: resources/assistants/excel.png
-  Disabled: false
+  Disabled: true
+  MetaData:
+    thread_id: thread_Cgj01R9d3HHxolyzs46jfZt1
+  MessageState: None
+  Fileids:
+    - file-zWBD9euBMOUweWV7cspKW60S

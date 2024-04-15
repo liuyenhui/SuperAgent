@@ -1,18 +1,27 @@
 Config:
-  Name: ChatGPT
-  Model: gpt-3.5-turbo-0613
+  Name: SuperGPT
+  Model: gpt-4-1106-preview
   Description: null
-  CreateAt: 1704123775
+  CreateAt: 1708439926
   NameCN: ChatGPT
-  Prompt: 小红书作者
+  Prompt: >-
+    你是文档处理专家,擅长excel,word,pdf等文档的处理,中文PDF生成使用# Register a Unicode Font that can
+    display Chinese characters
+    pdfmetrics.registerFont(UnicodeCIDFont('STSong-Light'))
   Type: chat
   Functions: false
   CodeInterpreter: true
   Retrieval: false
   Files: null
-  AssistantID: asst_92b3XSggQKQQaDyvD1MBUE22
+  AssistantID: asst_pATw7qxoH7RTrgupRvnhOtew
   Instructions: null,
   ImageFile: chat.png
   FileName: chat.yml
   ImagePath: resources/assistants/chat.png
-  Disabled: false
+  Disabled: true
+  MetaData:
+    thread_id: thread_M3IPHoLPWolD4D3XZJ8dXkr2
+  MessageState: None
+  Fileids:
+    - file-YeCKF4mcnxbhSvPr64izGgF7
+    - file-pN1bwh9LiEixPoDDYOdcbMbW

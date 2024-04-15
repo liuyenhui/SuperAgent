@@ -5,7 +5,7 @@ import ListView from './list/listview'
 import { LEFT_WIDTH } from '@renderer/components/public/constants'
 import { SystemInfoStore } from '@renderer/components/public/systemstore'
 export default function Left(): JSX.Element {
-  const lefthidden = SystemInfoStore((state) => state.info.LeftHidden)
+  const lefthidden = SystemInfoStore((state) => state.LeftHidden)
 
   // 触发隐藏左边栏
 

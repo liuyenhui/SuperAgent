@@ -2,12 +2,11 @@ import { Select } from '@mui/joy'
 import Option from '@mui/joy/Option'
 import { KeyboardArrowUp } from '@mui/icons-material'
 import i18n from 'i18next'
-import { SystemInfoStore } from '@renderer/components/public/systemstore'
+import { SystemInfoStore, UpdateSysinfo } from '@renderer/components/public/systemstore'
 import { useEffect } from 'react'
 
 export default function Language(): JSX.Element {
-  const update = SystemInfoStore.getState().update
-  const language = SystemInfoStore((state) => state.info.Language) as string
+  const language = SystemInfoStore((state) => state.Language) as string
   useEffect(() => {
     i18n.changeLanguage(language)
   }, [])
@@ -23,7 +22,7 @@ export default function Language(): JSX.Element {
         fontSize: '12px'
       }}
       onChange={(_event, value) => {
-        update('Language', value as string)
+        UpdateSysinfo('Language', value as string)
         value ? i18n.changeLanguage(value) : null
       }}
     >

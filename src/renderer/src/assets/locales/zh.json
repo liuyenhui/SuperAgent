@@ -14,7 +14,7 @@
   },
   "chat":{
     "sendmessage":"发送",
-    "sendfiles":"发送文件:"
+    "sendfiles":"发送文件"
   },
   "seting":{
     "title":"设置你的Openai API Key",
@@ -27,5 +27,8 @@
     "baseurlplancehold":"https://api.openai.com/v1",
     "submit":"确定",
     "test":"测试连接"
+  },
+  "system":{
+    "lang":"zh-CN"
   }
 }

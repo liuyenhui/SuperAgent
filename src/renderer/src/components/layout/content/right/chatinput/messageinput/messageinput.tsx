@@ -1,39 +1,28 @@
-import { SvgIcons, SvgPathMap } from '@renderer/components/public/SvgIcons'
-import { Box, Chip, Stack, Textarea, Typography } from '@mui/joy'
+import { Divider, Sheet, Stack, Textarea } from '@mui/joy'
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { RIGHT_INPUT_HEIGHT } from '@renderer/components/public/constants'
 
-export default function MessageInput(): JSX.Element {
-  const { t } = useTranslation()
-  // const SysInfo = useContext(SystemContext)
-
+import { MessageSendFile } from './messagesendfile'
+import { MessageSend } from './messagesend'
+import { FileObject } from '@renderer/components/public/filestore'
+export default function MessageInput(props: {
+  assistant: System.Assistant | undefined
+}): JSX.Element {
+  const assistant = props.assistant
   const [value, setValue] = useState('')
-
-  // 提交响应函数
-  function submit(): void {
-    console.log(value)
-    // const msg:System.Message = {
-    //   id:"99",
-    //   type:"User",
-    //   value:value
-    // }
-    // messages?.push(msg)
-    // info.SystemData.Email = value
-    // SysInfo.setSysinfo(info);
-    // (SysInfo.Email as any).setEmail("北京")
-  }
-
   return (
     <Textarea
-      placeholder="Type something here…"
+      placeholder={`Hi i\`m ${assistant?.AssistantBase.Name},Do you have any questions?`}
+      // 当助手未连接时不可编辑
+      disabled={assistant == undefined || assistant.AssistantBase.Disabled}
       minRows={3}
       maxRows={3}
+      value={value}
       // 监听事件同步更改value状态
       onChange={(e) => setValue(e.target.value)}
-      onKeyDown={(event) => {
-        console.log(event.key)
-      }}
+      // onKeyDown={(_event) => {
+      //   // console.log(event.key)
+      // }}
       sx={{
         /// <reference path="" />
 
@@ -42,46 +31,46 @@ export default function MessageInput(): JSX.Element {
       }}
       // value={msg}
       endDecorator={
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 'var(--Textarea-paddingBlock)',
-            pt: 'var(--Textarea-paddingBlock)',
-            borderTop: '1px solid',
-            borderColor: 'divider',
-            flex: 'auto',
-            alignItems: 'auto',
-            justifyContent: 'center'
-          }}
-        >
-          <Typography level="body-sm" variant="plain" color="primary" mt="5px">
-            {t('chat.sendfiles')}
-          </Typography>
-          <Chip
-            variant="plain"
-            color="primary"
-            size="sm"
-            sx={{
-              height: 'auto',
-              mt: '5px',
-              mb: '5px',
-              ml: 'auto'
-            }}
-            onClick={() => {
-              console.log('submit')
-              // 提交
-              submit()
-            }}
-          >
-            <Stack direction="row" justifyContent="center" alignItems="center" spacing={0.5}>
-              <SvgIcons d={SvgPathMap.Send} sx={{ mr: '1px' }} />
-              <Typography level="body-sm" variant="plain" color="primary">
-                {t('chat.sendmessage')}
-              </Typography>
-            </Stack>
-          </Chip>
-        </Box>
+        <BottomBar
+          {...props}
+          setvalue={setValue}
+          msg={value}
+          thread_id={assistant?.AssistantBase.MetaData['thread_id']}
+          assistant_id={assistant?.AssistantBase.AssistantID}
+        ></BottomBar>
       }
     />
+  )
+}
+function BottomBar(props: {
+  msg: string
+  thread_id: string
+  assistant_id: string | undefined
+  setvalue: (value: string) => void
+}): JSX.Element {
+  const [messagefiles, setMessagefiles] = useState(new Array<FileObject>())
+
+  return (
+    <Sheet sx={{ width: '100%', maxWidth: '100%' }}>
+      <Divider sx={{ width: '100%' }} />
+
+      <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={0.5}>
+        <MessageSendFile
+          thread_id={props.thread_id}
+          assistant_id={props.assistant_id}
+          messagefiles={messagefiles}
+          setMessagefiles={setMessagefiles}
+        ></MessageSendFile>
+        {/* 发送消息 */}
+        <MessageSend
+          msg={props.msg}
+          thread_id={props.thread_id}
+          assistant_id={props.assistant_id}
+          setvalue={props.setvalue}
+          messagefiles={messagefiles}
+          setMessagefiles={setMessagefiles}
+        ></MessageSend>
+      </Stack>
+    </Sheet>
   )
 }

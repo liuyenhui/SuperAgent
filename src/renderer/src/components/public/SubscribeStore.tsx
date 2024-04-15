@@ -2,16 +2,20 @@
  * 订阅Store更新事件 更新数据内容,如SetingStore 更新Key 则初始化Assistants
  */
 import { SetingStore, KeyState, LockInit, UnLockInit } from './setingstore'
-import { AssistantsStore } from './assistantstore'
+
+import { AssistantsStore, UpdateAssistants } from './assistantstore'
 import log from 'electron-log'
-import { Snackbar } from '@mui/joy'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
+import { UpdateSysinfo } from './systemstore'
+import { InsertThread } from './messagestore'
+import { FileLoad } from './filestore'
 
 export function SubscribeStore(): JSX.Element {
-  const [open, setOpen] = useState(false)
-  const [errormsg, setErrormsg] = useState('')
-  const UpdateAssistants = AssistantsStore((state) => state.UpdateAssistants)
-
+  const keypackage = {
+    key: SetingStore.getState().OpenAiAPIKey,
+    url: SetingStore.getState().BaseURL,
+    assistants: AssistantsStore.getState().Assistants
+  }
   useEffect(() => {
     SetingStore.subscribe(
       (state) => state.UserState,
@@ -20,65 +24,61 @@ export function SubscribeStore(): JSX.Element {
         // 设置api key成功,设置代理 // 锁住初始化,防止多少渲染调用
 
         if (value == KeyState.Setkey && prev == KeyState.None) {
-          LockInit()
-            ? InitAssistentOpenAI(
-                (assistants) => {
-                  UpdateAssistants(assistants)
-                },
-                (errmsg) => {
-                  setErrormsg(errmsg)
-                  setOpen(true)
-                }
-              )
-            : null
+          // 初始化助理
+          InitAssistentOpenAI(keypackage)
+          // 初始化云端文件
+          FileLoad()
         }
         if (value == KeyState.None) console.log(`set key error`)
       }
     )
   }, [])
 
-  return (
-    <Snackbar
-      autoHideDuration={30000}
-      onClose={() => setOpen(false)}
-      open={open}
-      color="danger"
-      variant="soft"
-      anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-    >
-      {errormsg}
-    </Snackbar>
-  )
+  return <></>
 }
 // 在OpenAI服务器创建助理
-function InitAssistentOpenAI(
-  successcallback: (assistants: System.Assistants) => void,
-  errorcallback: (errormsg: string) => void
-): void {
-  const keypackage = {
-    key: SetingStore.getState().OpenAiAPIKey,
-    url: SetingStore.getState().BaseURL,
-    assistants: AssistantsStore.getState().Assistants
-  }
-  try {
+async function InitAssistentOpenAI(keypackage: object): Promise<void> {
+  const b = LockInit()
+  if (!b) return
+  window.electron.ipcRenderer
+    .invoke('invoke_init_assistants', keypackage)
+    .then((assistants) => {
+      UpdateAssistants(assistants)
+      const ids = Array.from(assistants.keys())
+      UpdateSysinfo('AssistantID', ids[0])
+      // 成功创建助手,合并store
+      console.log(assistants)
+    })
+    .then(() => {
+      MessageInit()
+    })
+    .catch((error) => {
+      const msg = `InitAssistantOpenAI error:${error}`
+      log.info(msg)
+      return
+    })
+    .finally(() => {
+      UnLockInit()
+    })
+}
+
+function MessageInit(): void {
+  const assistants = AssistantsStore.getState().Assistants
+  assistants.forEach((assistant) => {
+    const thread_id = assistant.AssistantBase.MetaData['thread_id']
     window.electron.ipcRenderer
-      .invoke('invoke_init_assistants', keypackage)
-      .then((assistants) => {
-        // 成功创建助手,合并store
-        console.log(assistants)
-        successcallback(assistants)
+      .invoke('invoke_thread_message_list', {
+        thread_id: thread_id,
+        before_message_id: undefined
+      })
+      .then((messages: Array<System.Message>) => {
+        // 插入线程
+        InsertThread(thread_id, messages)
       })
       .catch((error) => {
-        const msg = `InitAssistantOpenAI error:${error}`
-        log.info(msg)
-        errorcallback(msg)
+        alert(error)
       })
-      .finally(() => {
-        UnLockInit()
-      })
-  } catch (error) {
-    log.info(error)
-  }
+  })
 }
 
 // function Respone(assisstants): void {

@@ -1,11 +1,10 @@
 import { Avatar, Badge, Box, Button, Card, Sheet, Stack, Typography } from '@mui/joy'
 import iconfile from '@renderer/assets/chatgpt.png'
 import { LEFT_HEAD_HEIGHT } from '@renderer/components/public/constants'
-import { SystemInfoStore } from '@renderer/components/public/systemstore'
+import { UpdateSysinfo } from '@renderer/components/public/systemstore'
 import { SetingStore, SetOpenDialogState, KeyState } from '@renderer/components/public/setingstore'
 
 export default function HeadView(): JSX.Element {
-  const update = SystemInfoStore((state) => state.update)
   const setOpen = SetOpenDialogState
   const userstate = SetingStore((state) => state.UserState)
 
@@ -47,7 +46,7 @@ export default function HeadView(): JSX.Element {
           <Button
             color="neutral"
             onClick={function () {
-              update('Email', 'new beijing email')
+              UpdateSysinfo('Email', 'new beijing email')
               console.log('gpt click!')
             }}
             size="sm"

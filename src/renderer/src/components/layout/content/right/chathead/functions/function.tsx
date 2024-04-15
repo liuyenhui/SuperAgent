@@ -1,4 +1,4 @@
-import { Sheet, Stack, Typography } from '@mui/joy'
+import { IconButton, Sheet, Stack, Typography } from '@mui/joy'
 import { SvgIcons, SvgPathMap } from '@renderer/components/public/SvgIcons'
 
 function BoxFunction(): JSX.Element {
@@ -9,16 +9,28 @@ function BoxFunction(): JSX.Element {
     </Stack>
   )
 }
-export function Functions(): JSX.Element {
+export function Functions(props: { assistant: System.Assistant }): JSX.Element {
+  const { assistant } = props
+  console.log(assistant)
   return (
     <Stack
       direction="row"
       justifyContent="flex-start"
-      alignItems="flex-end"
+      alignItems="center"
       width="100%"
+      height="100%"
       marginLeft="3px"
     >
-      <SvgIcons color="success" d={SvgPathMap.Function}></SvgIcons>
+      <IconButton
+        variant="plain"
+        size="sm"
+        // disabled={filedisabled}
+        onClick={() => {
+          // setOpen(true)
+        }}
+      >
+        <SvgIcons color="success" d={SvgPathMap.Function}></SvgIcons>
+      </IconButton>
       <Sheet sx={{ mr: '15px' }}></Sheet>
       <BoxFunction key="1"></BoxFunction>
     </Stack>

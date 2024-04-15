@@ -10,12 +10,17 @@ import { AssistantsLoad, AssistantsSave } from '../assistantsload'
 import log from 'electron-log'
 import { OpenAI } from 'openai'
 import { AssistantCreateParams, Assistant } from 'openai/resources/beta/assistants/assistants'
+import { MessageListParams } from 'openai/resources/beta/threads/messages/messages'
 type MainIPCType = {
   app: Electron.App
   mainWindow: Electron.BrowserWindow
   resourcesPath: string
 }
-
+export const OpenAIParam = {
+  apiKey: '',
+  baseURL: '',
+  timeout: 5000
+}
 // 同步请求
 ipcMain.on('assistants_load', (event) => {
   const assistantlist = AssistantsLoad(MainIPC.resourcesPath)
@@ -40,12 +45,12 @@ ipcMain.handle('invoke_openurl', (_event, arge) => {
 
 // 测试API KEY
 ipcMain.handle('test_openai_key', async (_event, arge) => {
-  const apikey = arge[0]
-  const baseurl = arge[1]
-  log.info(`apikey:${arge[0]} baseurl:${arge[1]}`)
+  const { key, url } = arge
+  log.info(`apikey:${key} baseurl:${url}`)
   const openai = new OpenAI({
-    apiKey: apikey,
-    baseURL: baseurl
+    apiKey: key,
+    baseURL: url,
+    timeout: 5000
   })
   try {
     const models = await openai.models.list()
@@ -59,6 +64,10 @@ ipcMain.handle('test_openai_key', async (_event, arge) => {
 // 设置openai key 完成 初始化Assistant,arge[0] as object(key,baseurl) arge[1] assistants
 ipcMain.handle('invoke_init_assistants', async (_event, arge) => {
   const { key, url, assistants } = arge
+  // 设置OpenAIParam
+  OpenAIParam.apiKey = key
+  OpenAIParam.baseURL = url
+
   try {
     const newassistans = await SyncAssistants(key, url, assistants)
     return Promise.resolve(newassistans)
@@ -67,8 +76,91 @@ ipcMain.handle('invoke_init_assistants', async (_event, arge) => {
     return Promise.reject(error)
   }
 })
+ipcMain.handle('invoke_update_assistant_codeinterpreter', async (_event, arge) => {
+  const [assistant_id, code_interpreter] = [...arge]
+  const openai = new OpenAI(OpenAIParam)
+  const assistant = await openai.beta.assistants.retrieve(assistant_id)
+  let tools = assistant.tools
+  // 先删除代码解释器
+  tools = tools.filter((item) => {
+    return item.type != 'code_interpreter'
+  })
+  // 传入true则添加
+  if (code_interpreter) {
+    tools.push({ type: 'code_interpreter' })
+  }
+  await openai.beta.assistants.update(assistant_id, { tools: tools })
+})
+// 更新附加文件
+ipcMain.handle('invoke_update_assistant_fileids', async (_event, arge) => {
+  const { assistant_id, ids } = arge
+  try {
+    const openai = new OpenAI(OpenAIParam)
+    const assistant = await openai.beta.assistants.retrieve(assistant_id)
+    let tools = assistant.tools
+    // 先删除检索器
+    tools = tools.filter((item) => {
+      return item.type != 'retrieval'
+    })
+    if (ids.length > 0) {
+      // 传入true则添加
 
-
+      tools.push({ type: 'retrieval' })
+    }
+    await openai.beta.assistants.update(assistant_id, { tools: tools, file_ids: ids })
+    // openai.httpAgent
+    return Promise.resolve(ids)
+  } catch (error) {
+    return Promise.reject(error)
+  }
+})
+// 更新模型
+ipcMain.handle('invoke_update_assistant_model', async (_event, arge) => {
+  const { assistant_id, model } = arge
+  const openai = new OpenAI(OpenAIParam)
+  await openai.beta.assistants.update(assistant_id, { model: model })
+})
+// arge - { thread_id , before_message_id}
+ipcMain.handle('invoke_thread_message_list', async (_event, arge) => {
+  const { thread_id, before_message_id = undefined } = arge
+  try {
+    const openai = new OpenAI(OpenAIParam)
+    const listparam: MessageListParams = { order: 'desc', limit: 100 }
+    log.info(`list message ${thread_id} before ${before_message_id}`)
+    const msgresponse = await openai.beta.threads.messages.list(thread_id, listparam)
+    const messages = msgresponse.data as Array<System.Message>
+    return Promise.resolve(messages)
+  } catch (error) {
+    return Promise.reject(error)
+  }
+})
+ipcMain.handle('invoke_thread_message_delete', async (_event, arge) => {
+  const { assistant_id, thread_id } = arge
+  log.info(`delete message ${assistant_id},${thread_id}`)
+  try {
+    // 创建thread
+    const openai = new OpenAI(OpenAIParam)
+    const newthread = await openai.beta.threads.create()
+    // 删除旧线程
+    await openai.beta.threads.del(thread_id)
+    // 更新assistant
+    await openai.beta.assistants.update(assistant_id, { metadata: { thread_id: newthread.id } })
+    return Promise.resolve({ AssistantID: assistant_id, NewThreadID: newthread.id })
+  } catch (error) {
+    log.info(`ipcMain invoke_thread_message_delete ${error}`)
+    return Promise.reject(error)
+  }
+})
+ipcMain.handle('invoke_update_assistant_name_prompt', async (_event, arge) => {
+  const { AssistantID, Name, Prompt } = arge
+  const openai = new OpenAI(OpenAIParam)
+  const assistant = await openai.beta.assistants.update(AssistantID, {
+    name: Name,
+    instructions: Prompt
+  })
+  if (assistant) return Promise.resolve()
+  else return Promise.reject('update assistant error')
+})
 /**
  * 同步远程助手
  * @param key API Key
@@ -81,10 +173,10 @@ async function SyncAssistants(
   url: string,
   assistants: System.Assistants
 ): Promise<System.Assistants> {
-  const openai = new OpenAI({
-    apiKey: key,
-    baseURL: url
-  })
+  OpenAIParam.apiKey = key
+  OpenAIParam.baseURL = url
+  const openai = new OpenAI(OpenAIParam)
+
   // 清除远程助手 测试是打开情况助手
   // await ClearAllAssistant(openai)
   // 获取远程助手
@@ -118,6 +210,7 @@ async function SyncAssistants(
     throw new Error(errmsg)
     //error 会直接break 出函数
   }
+  // 添加助手消息
   return newassistants
 }
 /**
@@ -132,9 +225,15 @@ async function CreateAssistantFormLoacl(
 ): Promise<System.Assistant | null> {
   try {
     const remote = LocalAssistantToRemoteAssistant(loaclassistant)
+    // 创建线程
+    const thread = await openai.beta.threads.create()
+    const id: string = thread['id'] as string
+    remote.metadata = { thread_id: id }
+
     // 创建助手
     const result = await openai.beta.assistants.create(remote)
     const assistant = AttachLoaclAssistant(loaclassistant, result)
+
     return assistant
   } catch (error) {
     return null
@@ -151,7 +250,7 @@ function LocalAssistantToRemoteAssistant(loacl: System.Assistant): AssistantCrea
     // Array<string> ids
     file_ids: [],
     instructions: loacl.AssistantBase.Prompt,
-    metadata: null,
+    metadata: loacl.AssistantBase.MetaData,
     name: loacl.AssistantBase.Name,
     tools: tools
   }
@@ -161,10 +260,25 @@ function LocalAssistantToRemoteAssistant(loacl: System.Assistant): AssistantCrea
 function AttachLoaclAssistant(local: System.Assistant, remote: Assistant): System.Assistant {
   local.AssistantBase.AssistantID = remote.id
   local.AssistantBase.CreateAt = remote.created_at
+  local.AssistantBase.MetaData = remote.metadata as object
+  // 提示词
+  local.AssistantBase.Prompt = remote.instructions ? remote.instructions : ''
+  local.AssistantBase.Fileids = [...remote.file_ids]
+  const tools = remote.tools.find((item) => {
+    return item.type == 'code_interpreter'
+  })
+  tools
+    ? (local.AssistantBase.CodeInterpreter = true)
+    : (local.AssistantBase.CodeInterpreter = false)
+  local.AssistantBase.Model = remote.model
+  // remote.tools.find(OpenAI.Beta.Assistants.Assistant.CodeInterpreter)
   //关闭Disabled
   local.AssistantBase.Disabled = false
+  // 设置状态
+  local.AssistantBase.MessageState = 'None'
   return local
 }
+
 /**
  * 清除远程全部助手信息
  */
@@ -177,6 +291,5 @@ function AttachLoaclAssistant(local: System.Assistant, remote: Assistant): Syste
 //     log.info(`delete ${result}`)
 //   })
 // }
-
 
 export const MainIPC: MainIPCType = {} as MainIPCType

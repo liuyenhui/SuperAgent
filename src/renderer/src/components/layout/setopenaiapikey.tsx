@@ -92,7 +92,7 @@ export function SetOpenAiAPIKeyDialog(): JSX.Element {
     }, 10000)
     // 测试API KEY IPC
     window.electron.ipcRenderer
-      .invoke('test_openai_key', [key, tempurl])
+      .invoke('test_openai_key', { key: key, url: tempurl })
       .then((models) => {
         console.log(`${key},${tempurl},${models}`)
 
