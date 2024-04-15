@@ -8,6 +8,7 @@ import log from 'electron-log'
 import { useEffect } from 'react'
 import { UpdateSysinfo } from './systemstore'
 import { InsertThread } from './messagestore'
+import { FileLoad } from './filestore'
 
 export function SubscribeStore(): JSX.Element {
   const keypackage = {
@@ -23,7 +24,10 @@ export function SubscribeStore(): JSX.Element {
         // 设置api key成功,设置代理 // 锁住初始化,防止多少渲染调用
 
         if (value == KeyState.Setkey && prev == KeyState.None) {
+          // 初始化助理
           InitAssistentOpenAI(keypackage)
+          // 初始化云端文件
+          FileLoad()
         }
         if (value == KeyState.None) console.log(`set key error`)
       }

@@ -201,6 +201,8 @@ declare namespace System {
     CreateAt: number
     // 提示词
     Prompt: string
+    // 附加文件ID
+    Fileids: Array<string>
     // 代码解释器
     CodeInterpreter: boolean
     // 可用状态,remote 未验证时为true,当invoke_init_assistants创建后返回false表示当前可用

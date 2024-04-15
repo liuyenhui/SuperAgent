@@ -139,6 +139,7 @@ export function AssistantDescrib(props: ChatPropType): JSX.Element {
 function ModelButton(props: { assistant: System.Assistant }): JSX.Element {
   const { assistant } = props
   const [open, setOpen] = useState(false)
+  // model 'gpt-3.5-turbo-0613' cannot be used with the 'retrieval' tool
   const clickitem = (model: SetingModelType): void => {
     console.log(model.id)
     UpdateAssistantModel(assistant.AssistantBase.AssistantID, model.name, model.id)
@@ -165,6 +166,12 @@ function ModelButton(props: { assistant: System.Assistant }): JSX.Element {
           <MenuItem
             key={model.id}
             onClick={() => {
+              if (model.name == 'GPT 3.5' && assistant.AssistantBase.Fileids.length > 0) {
+                alert(
+                  `model 'GPT3.5' cannot be used with the 'retrieval' tool,remove files please...`
+                )
+                return
+              }
               clickitem(model)
             }}
             sx={{ fontSize: '10px' }}

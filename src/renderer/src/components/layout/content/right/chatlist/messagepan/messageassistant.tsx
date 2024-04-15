@@ -165,7 +165,7 @@ export function MessageContentAssistent(props: { msg: System.Message }): JSX.Ele
             )}
           </Box>
         </Chip>
-        {props.msg.content.map((value, index) => {
+        {/* {props.msg.content.map((value, index) => {
           return (
             <Stack direction="column" key={index}>
               <Typography color="danger">
@@ -198,7 +198,7 @@ export function MessageContentAssistent(props: { msg: System.Message }): JSX.Ele
               </Typography>
             </Stack>
           )
-        })}
+        })} */}
       </Stack>
     </Stack>
   )

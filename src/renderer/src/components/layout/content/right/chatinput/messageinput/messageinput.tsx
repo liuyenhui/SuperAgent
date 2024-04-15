@@ -4,6 +4,7 @@ import { RIGHT_INPUT_HEIGHT } from '@renderer/components/public/constants'
 
 import { MessageSendFile } from './messagesendfile'
 import { MessageSend } from './messagesend'
+import { FileObject } from '@renderer/components/public/filestore'
 export default function MessageInput(props: {
   assistant: System.Assistant | undefined
 }): JSX.Element {
@@ -47,14 +48,28 @@ function BottomBar(props: {
   assistant_id: string | undefined
   setvalue: (value: string) => void
 }): JSX.Element {
+  const [messagefiles, setMessagefiles] = useState(new Array<FileObject>())
+
   return (
     <Sheet sx={{ width: '100%', maxWidth: '100%' }}>
       <Divider sx={{ width: '100%' }} />
 
       <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={0.5}>
-        <MessageSendFile {...props}></MessageSendFile>
+        <MessageSendFile
+          thread_id={props.thread_id}
+          assistant_id={props.assistant_id}
+          messagefiles={messagefiles}
+          setMessagefiles={setMessagefiles}
+        ></MessageSendFile>
         {/* 发送消息 */}
-        <MessageSend {...props}></MessageSend>
+        <MessageSend
+          msg={props.msg}
+          thread_id={props.thread_id}
+          assistant_id={props.assistant_id}
+          setvalue={props.setvalue}
+          messagefiles={messagefiles}
+          setMessagefiles={setMessagefiles}
+        ></MessageSend>
       </Stack>
     </Sheet>
   )

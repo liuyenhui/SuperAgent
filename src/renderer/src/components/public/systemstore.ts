@@ -18,6 +18,8 @@ interface SystemInfoStoreType {
   Loading: boolean
   OpenAIConnected: boolean
   OpenAIBalance: number
+  // FileLoad 状态
+  // IsFileLoad:boolean
   // 全局提示消息
   PopMessage: {
     Msg: string
@@ -56,7 +58,9 @@ export const SystemInfoStore = create<SystemInfoStoreType>()(
   persist(() => InfoData, {
     name: 'systeminfo',
     partialize: (state) =>
-      Object.fromEntries(Object.entries(state).filter(([key]) => !['PopMessage'].includes(key)))
+      Object.fromEntries(
+        Object.entries(state).filter(([key]) => !['PopMessage', 'Loading'].includes(key))
+      )
   })
 )
 

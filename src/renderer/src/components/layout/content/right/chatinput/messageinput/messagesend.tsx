@@ -14,11 +14,14 @@ import {
 } from '@renderer/components/public/messagestore'
 import { v4 as uuidv4 } from 'uuid'
 import moment from 'moment'
+import { FileObject } from '@renderer/components/public/filestore'
 export function MessageSend(props: {
   msg: string
   thread_id: string
   assistant_id: string | undefined
   setvalue: (value: string) => void
+  messagefiles: Array<FileObject>
+  setMessagefiles: (filse: Array<FileObject>) => void
 }): JSX.Element {
   // 提交响应函数
   const submit = useCallback((): void => {
@@ -50,11 +53,13 @@ export function MessageSend(props: {
       ],
       assistant_id: props.assistant_id,
       run_id: '',
-      file_ids: [],
+      // 写入文件id
+      file_ids: [...props.messagefiles.map((file) => file.id)],
       // 记录状态,与本地临时ID
       metadata: { MessageState: 'UserSend', LocalID: msglocalid as string, Steps: undefined }
     }
-
+    // 清空文件ID
+    props.setMessagefiles([])
     // 插入用户临时消息等待返回,invoke_thread_message_create返回后更新
     InsertMessage(props.thread_id, message)
     const threads = MessageStore.getState().threads

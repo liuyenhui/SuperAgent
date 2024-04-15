@@ -24,7 +24,7 @@ import {
   AssistantsStore,
   UpdateAssistantNamePrompt
 } from '@renderer/components/public/assistantstore'
-import { CludeFiles } from './cludefiles/cludefiles'
+import { CludeFiles } from './cloudfiles/cloudfiles'
 import { Functions } from './functions/function'
 import log from 'electron-log'
 import { AssistantDescrib, ChatPropType } from './assistantdescrib/assistantdisplay'
@@ -212,9 +212,9 @@ export default function ChatHead(): JSX.Element {
                 alignItems="flex-start"
                 width="100%"
               >
-                <CludeFiles></CludeFiles>
+                <CludeFiles assistant={assistant as System.Assistant}></CludeFiles>
                 <Divider sx={{ ml: '30px' }} orientation="horizontal"></Divider>
-                <Functions></Functions>
+                <Functions assistant={assistant as System.Assistant}></Functions>
               </Stack>
             </Grid>
           </Grid>

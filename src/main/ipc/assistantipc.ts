@@ -91,6 +91,30 @@ ipcMain.handle('invoke_update_assistant_codeinterpreter', async (_event, arge) =
   }
   await openai.beta.assistants.update(assistant_id, { tools: tools })
 })
+// 更新附加文件
+ipcMain.handle('invoke_update_assistant_fileids', async (_event, arge) => {
+  const { assistant_id, ids } = arge
+  try {
+    const openai = new OpenAI(OpenAIParam)
+    const assistant = await openai.beta.assistants.retrieve(assistant_id)
+    let tools = assistant.tools
+    // 先删除检索器
+    tools = tools.filter((item) => {
+      return item.type != 'retrieval'
+    })
+    if (ids.length > 0) {
+      // 传入true则添加
+
+      tools.push({ type: 'retrieval' })
+    }
+    await openai.beta.assistants.update(assistant_id, { tools: tools, file_ids: ids })
+    // openai.httpAgent
+    return Promise.resolve(ids)
+  } catch (error) {
+    return Promise.reject(error)
+  }
+})
+// 更新模型
 ipcMain.handle('invoke_update_assistant_model', async (_event, arge) => {
   const { assistant_id, model } = arge
   const openai = new OpenAI(OpenAIParam)
@@ -239,6 +263,7 @@ function AttachLoaclAssistant(local: System.Assistant, remote: Assistant): Syste
   local.AssistantBase.MetaData = remote.metadata as object
   // 提示词
   local.AssistantBase.Prompt = remote.instructions ? remote.instructions : ''
+  local.AssistantBase.Fileids = [...remote.file_ids]
   const tools = remote.tools.find((item) => {
     return item.type == 'code_interpreter'
   })
@@ -253,6 +278,7 @@ function AttachLoaclAssistant(local: System.Assistant, remote: Assistant): Syste
   local.AssistantBase.MessageState = 'None'
   return local
 }
+
 /**
  * 清除远程全部助手信息
  */

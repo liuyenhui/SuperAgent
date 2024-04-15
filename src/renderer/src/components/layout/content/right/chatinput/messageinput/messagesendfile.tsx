@@ -10,69 +10,13 @@ import {
   Typography
 } from '@mui/joy'
 import { SvgIcons, SvgPathMap } from '@renderer/components/public/SvgIcons'
+import { CloudDialog } from '@renderer/components/public/clouddialog'
 import { LEFT_WIDTH } from '@renderer/components/public/constants'
+import { FileObject, FileStore } from '@renderer/components/public/filestore'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-function InstFiles<T>(items: Map<string, T>, additems: Map<string, T>): Map<string, T> {
-  const result = new Map<string, T>(items)
-  additems.forEach((value, key) => {
-    result.set(key, value)
-  })
-  return result
-}
-export function MessageSendFile(props: {
-  thread_id: string
-  assistant_id: string | undefined
-}): JSX.Element {
-  const { t } = useTranslation()
-  const { thread_id, assistant_id } = props
-  const [files, setFiles] = useState<Map<string, System.FileType>>(new Map())
-
-  console.log(thread_id, assistant_id)
-  return (
-    <Stack direction="row" justifyContent="center" alignItems="center" spacing={0.5}>
-      <Chip
-        variant="plain"
-        color="primary"
-        size="sm"
-        sx={{
-          height: 'auto',
-          mt: '5px',
-          mb: '5px',
-          ml: 'auto'
-        }}
-        onClick={() => {
-          window.electron.ipcRenderer
-            .invoke('invoke_open_files', 'jpg')
-            .then((result: Map<string, System.FileType>) => {
-              if (result.size > 0) {
-                const newfiles = InstFiles(files, result)
-                setFiles(newfiles)
-              }
-            })
-            .catch((error) => {
-              alert(error)
-            })
-          // 提交
-        }}
-      >
-        <Stack direction="row" justifyContent="center" alignItems="center" spacing={0.5}>
-          <SvgIcons d={SvgPathMap.Upload} sx={{ mr: '1px' }} />
-          <Typography level="body-sm" variant="plain" color="primary">
-            {t('chat.sendfiles')}
-          </Typography>
-        </Stack>
-      </Chip>
-      <FileList files={files} setFiles={setFiles}></FileList>
-    </Stack>
-  )
-}
-
-function FileList(props: {
-  files: Map<string, System.FileType>
-  setFiles: (files: Map<string, System.FileType>) => void
-}): JSX.Element {
-  const { files, setFiles } = props
+function FileList(props: { files: Array<FileObject> }): JSX.Element {
+  const { files } = props
   return (
     <List
       orientation="horizontal"
@@ -80,7 +24,7 @@ function FileList(props: {
       size="sm"
       // width 计算应动态 获取470px next version update
       sx={{
-        pt:'5px',
+        pt: '5px',
         width: `calc(100vw - ${LEFT_WIDTH}px - 270px)`,
         overflowX: 'auto',
         '&::-webkit-scrollbar': {
@@ -98,20 +42,11 @@ function FileList(props: {
     >
       <ListDivider inset="gutter" />
 
-      {Array.from(files.entries()).map((item) => {
+      {files.map((file) => {
         return (
           <Tooltip
-            key={item[0]}
-            title={
-              <TooltipTitle
-                file={item[1]}
-                removefile={(filepath) => {
-                  console.log(filepath)
-                  files.delete(filepath)
-                  setFiles(new Map(files))
-                }}
-              />
-            }
+            key={file.id}
+            title={<TooltipTitle file={file} />}
             color="primary"
             placement="top"
             variant="plain"
@@ -122,7 +57,7 @@ function FileList(props: {
                   <SvgIcons d={SvgPathMap.Image} sx={{ mr: '1px' }} />
                 </ListItemDecorator>
                 <Typography noWrap textOverflow="ellipsis" level="body-sm" variant="plain">
-                  {item[1].FileName}
+                  {file.filename}
                 </Typography>
               </ListItem>
               <ListDivider inset="gutter" />
@@ -133,30 +68,87 @@ function FileList(props: {
     </List>
   )
 }
-function TooltipTitle(props: {
-  file: System.FileType
-  removefile: (filepath: string) => void
-}): JSX.Element {
-  const { file, removefile } = props
+function TooltipTitle(props: { file: FileObject }): JSX.Element {
+  const { file } = props
   return (
     <Stack direction="row" justifyContent="center" alignItems="center" spacing={0.5}>
       <Typography noWrap level="body-sm" variant="plain">
-        <span>{file.FilePath}</span>
+        <span>{file.filename}</span>
       </Typography>
       <Chip
         onClick={() => {
-          window.electron.ipcRenderer.invoke('invoke_show_file', { filepath: file.FilePath })
+          // window.electron.ipcRenderer.invoke('invoke_show_file', { filepath: file.FilePath })
         }}
       >
         Open
       </Chip>
       <Chip
         onClick={() => {
-          removefile(file.FilePath)
+          // removefile(file.FilePath)
         }}
       >
         Remove
       </Chip>
+    </Stack>
+  )
+}
+
+export function MessageSendFile(props: {
+  thread_id: string
+  assistant_id: string | undefined
+  messagefiles: Array<FileObject>
+  setMessagefiles: (filse: Array<FileObject>) => void
+}): JSX.Element {
+  const { t } = useTranslation()
+  const { thread_id, assistant_id, messagefiles, setMessagefiles } = props
+
+  const [open, setOpen] = useState(false)
+  const files = FileStore().Files
+
+  console.log(thread_id, assistant_id)
+  return (
+    <Stack direction="row" justifyContent="center" alignItems="center" spacing={0.5}>
+      <Chip
+        variant="plain"
+        color="primary"
+        size="sm"
+        sx={{
+          height: 'auto',
+          mt: '5px',
+          mb: '5px',
+          ml: 'auto'
+        }}
+        onClick={() => {
+          setOpen(true)
+        }}
+      >
+        <Stack direction="row" justifyContent="center" alignItems="center" spacing={0.5}>
+          <SvgIcons d={SvgPathMap.Upload} sx={{ mr: '1px' }} />
+          <Typography level="body-sm" variant="plain" color="primary">
+            {t('chat.sendfiles')}
+          </Typography>
+        </Stack>
+      </Chip>
+      <FileList
+        files={messagefiles.filter((file) => {
+          return (
+            files.findIndex((item) => {
+              return item.id == file.id
+            }) >= 0
+          )
+        })}
+      ></FileList>
+      <CloudDialog
+        open={open}
+        setOpen={setOpen}
+        fileids={messagefiles.map((file) => file.id)}
+        okcallback={(ids) => {
+          const selectfiles = files.filter((file) => {
+            return ids.indexOf(file.id) >= 0
+          })
+          setMessagefiles(selectfiles)
+        }}
+      ></CloudDialog>
     </Stack>
   )
 }

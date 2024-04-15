@@ -139,3 +139,43 @@ export const UpdateAssistantNamePrompt = async (
         return Promise.reject(error)
       })
   })
+// 更新附加文件
+export const UpdateAssistantFileIds = async (
+  AssistantID: string,
+  ids: Array<string>
+): Promise<void> => {
+  try {
+    // 更新文件ID
+    return window.electron.ipcRenderer
+      .invoke('invoke_update_assistant_fileids', {
+        assistant_id: AssistantID,
+        ids: ids
+      })
+      .then((ids) => {
+        AssistantsStore.setState((state) => {
+          const assistant = state.Assistants.get(AssistantID)
+          assistant ? (assistant.AssistantBase.Fileids = [...ids]) : null
+        })
+      })
+      .catch((error) => {
+        alert(error)
+      })
+  } catch (error) {
+    alert(error)
+  }
+}
+// 文件删除后,删除助理附加的文件ID
+export const UpdateAssistantRemoveFile = async (file_id: string): Promise<void[]> => {
+  const Assistants = AssistantsStore.getState().Assistants
+  const promisearray = new Array<Promise<void>>()
+  Assistants.forEach((assistant, assid) => {
+    if (assistant.AssistantBase.Fileids.indexOf(file_id) >= 0) {
+      const ids = assistant.AssistantBase.Fileids.filter((id) => {
+        return id != file_id
+      })
+      promisearray.push(UpdateAssistantFileIds(assid, ids))
+    }
+  })
+  // 返回全部完成
+  return Promise.all(promisearray)
+}
